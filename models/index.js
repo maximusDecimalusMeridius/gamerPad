@@ -1,0 +1,1 @@
+const str = `test is best`;
