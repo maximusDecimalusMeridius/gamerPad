@@ -25,7 +25,7 @@ User.init({
         validate: {
             len: [8]
         }
-    }
+    },
     lookingForFriends: {
         type: DataTypes.BOOLEAN,
         defaultValue: true,
