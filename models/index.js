@@ -4,7 +4,6 @@ const Note = require(`./Note`);
 const Account = require(`./Account`);
 const UserGame = require(`./UserGame`);
 const Game = require(`./Game`);
-const Rating = require(`./Rating`);
 const Platform = require(`./Platform`);
 
 //Friends relation
@@ -16,14 +15,7 @@ User.belongsToMany(Note);
 Note.belongsToMany(User);
 //User and Platform
 User.belongsToMany(Platform, {through: UserGame});
-Platfotm.belongsToMany(User, {through: UserGame});
-
-//Rating to User
-User.hasMany(Rating);
-Rating.belongsTo(User);
-//Rating to Game
-Rating.belongsTo(Game);
-Game.hasMany(Rating);
+Platform.belongsToMany(User, {through: UserGame});
 
 //Account to User relation
 Account.hasOne(User);
@@ -49,6 +41,5 @@ module.exports = {
     Account,
     UserGame,
     Game,
-    Rating,
     Platform
 }
