@@ -2,17 +2,16 @@ const { Model, DataTypes } = require('sequelize');
 const sequelize = require('../../config/connection');
 const bcrypt = require("bcrypt")
 
-class User extends Model { }
+class User extends Model {}
 
 User.init({
-    // add properites here, ex:
     username: {
         type: DataTypes.STRING,
         allowNull: false,
         unique: true,
-        // validate: {
-        //     isAlphanumeric: true
-        // }
+        validate: {
+            isAlphanumeric: true
+        }
     },
     email: {
         type: DataTypes.STRING,
@@ -23,14 +22,34 @@ User.init({
         type: DataTypes.STRING,
         allowNull: false,
         validate: {
-            len: [8]
-        }
+            validatePassword: function(password) {
+                if(!(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,128}$/.test(password))) {
+                    throw new Error('The password must contain at least 8 and maximum 128 characters including at least 1 uppercase, 1 lowercase, one number and one special character.');
+                }
+            }
+        },
     },
     lookingForFriends: {
         type: DataTypes.BOOLEAN,
         defaultValue: true,
-    }
-}, {
+    },
+    friendCode: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        defaultValue: {
+            makeCode: function() {
+                return `Bananas`
+            }
+        }
+    },
+    Theme: {
+        type: DataTypes.STRING,
+        defaultValue: `light`,
+    },
+    profilePicture: {
+        type: DataTypes.STRING,
+    },
+},{
     sequelize,
     hooks: {
         beforeCreate: userObj => {
@@ -40,4 +59,4 @@ User.init({
     }
 });
 
-module.exports = User
+module.exports = User;
