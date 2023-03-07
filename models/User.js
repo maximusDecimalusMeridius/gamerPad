@@ -28,7 +28,7 @@ User.init({
     }
     lookingForFriends: {
         type: DataTypes.BOOLEAN,
-        
+        defaultValue: true,
     }
 }, {
     sequelize,
