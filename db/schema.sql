@@ -1,0 +1,2 @@
+DROP DATABASE IF EXISTS gamerpad_db;
+CREATE DATABASE gamerpad_db;
