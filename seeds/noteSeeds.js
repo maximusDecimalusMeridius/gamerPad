@@ -3,7 +3,9 @@ const noteData = [
     {
         title: 'This Game Rocks Because CATS',
         textContent: 'Yo, read the title',
-        color: 'salmon'
+        color: 'salmon',
+        authorId: 1,
+        UserId: 1,
     }
 ]
 
