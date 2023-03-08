@@ -25,7 +25,7 @@ UserFriend.init({
         }
     },
     status: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.STRING,
         allowNull: false
     }
 }, {
