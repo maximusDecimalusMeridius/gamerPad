@@ -1,7 +1,7 @@
 const { Model, DataTypes } = require('sequelize');
-const sequelize = require('../../config/connection');
+const sequelize = require('../config/connection');
 
-class Note extends Model {}
+class Note extends Model { }
 
 Note.init({
     title: {
@@ -14,7 +14,7 @@ Note.init({
     color: {
         type: DataTypes.STRING
     }
-},{
+}, {
     sequelize
 });
 
