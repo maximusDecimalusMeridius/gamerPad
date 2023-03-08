@@ -20,7 +20,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 //references API routes in /controllers for each model
-app.use(allRoutes);
+app.use('/api', allRoutes);
 
 //use public as the base directory
 // app.use(express.static(path.join(__dirname, 'public')));
@@ -32,7 +32,7 @@ app.get("/*", (req, res) => {
 
 //sync sequelize, dropping and recreating the db each time
 //launch server on PORT
-sequelize.sync({ force: true }).then(function () {
+sequelize.sync({ force: false }).then(function () {
     app.listen(PORT, function () {
         console.log('App listening on PORT ' + PORT);
 
