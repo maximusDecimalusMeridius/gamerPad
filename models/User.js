@@ -1,5 +1,5 @@
 const { Model, DataTypes } = require('sequelize');
-const sequelize = require('../../config/connection');
+const sequelize = require('../config/connection');
 const bcrypt = require("bcrypt")
 
 class User extends Model { }
@@ -36,11 +36,7 @@ User.init({
     friendCode: {
         type: DataTypes.STRING,
         allowNull: false,
-        defaultValue: {
-            makeCode: function () {
-                return `Bananas`
-            }
-        }
+        defaultValue: "Bananas"
     },
     Theme: {
         type: DataTypes.STRING,
