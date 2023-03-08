@@ -13,7 +13,4 @@ router.use("/notes", noteRoutes);
 const gameRoutes = require("./gameRoutes");
 router.use("/games", gameRoutes);
 
-const frontEndRoutes = require("./frontEndRoutes");
-router.use("/", frontEndRoutes);
-
 module.exports = router;

@@ -1,16 +1,16 @@
-const {Model, DataTypes} = require("sequelize");
+const { Model, DataTypes } = require("sequelize");
 const sequelize = require("../config/connection");
 
-class Platform extends Model{}
+class Platform extends Model { }
 
 Platform.init({
-    platform:{
+    platform: {
         type: DataTypes.STRING,
-        allowNull:false,
-        unique:true
+        allowNull: false,
+        unique: true
     }
-},{
+}, {
     sequelize
 });
 
-module.exports=Platform
+module.exports = Platform

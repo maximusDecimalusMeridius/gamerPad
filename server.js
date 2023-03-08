@@ -13,7 +13,7 @@ const sequelize = require('./config/connection');
 const PORT = process.env.PORT || 3000;
 
 //build tables when index.js is run
-const { Account, Game, Note, Platform, Rating, User, UserFriend, UserGame } = require("./models");
+const { Account, Game, Note, Platform, User, UserFriend, UserGame } = require("./models");
 
 //use express methods to interpret JSON objects
 app.use(express.json());
@@ -23,7 +23,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(allRoutes);
 
 //use public as the base directory
-app.use(express.static(path.join(__dirname, 'public')));
+// app.use(express.static(path.join(__dirname, 'public')));
 
 //wildcard redirect
 app.get("/*", (req, res) => {
@@ -32,8 +32,10 @@ app.get("/*", (req, res) => {
 
 //sync sequelize, dropping and recreating the db each time
 //launch server on PORT
-sequelize.sync({ force: true }).then(function() {
-    app.listen(PORT, function() {
+sequelize.sync({ force: true }).then(function () {
+    app.listen(PORT, function () {
         console.log('App listening on PORT ' + PORT);
-    });
+
+    })
+
 });

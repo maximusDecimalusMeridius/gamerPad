@@ -1,27 +1,27 @@
-const {Model, DataTypes} = require("sequelize");
+const { Model, DataTypes } = require("sequelize");
 const sequelize = require("../config/connection");
 
-class Account extends Model{}
+class Account extends Model { }
 
 Account.init({
-    account:{
+    account: {
         type: DataTypes.STRING,
-        allowNull:false
+        allowNull: false
     },
-    type:{
+    type: {
         type: DataTypes.STRING,
-        allowNull:false
+        allowNull: false
     },
-    username:{
+    username: {
         type: DataTypes.STRING,
-        allowNull:false
+        allowNull: false
     },
-    gamerTag:{
+    gamerTag: {
         type: DataTypes.STRING,
-        allowNull:false
+        allowNull: false
     }
-},{
+}, {
     sequelize
 });
 
-module.exports=Account
+module.exports = Account

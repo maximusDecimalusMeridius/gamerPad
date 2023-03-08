@@ -1,24 +1,24 @@
-const {Model, DataTypes} = require("sequelize");
+const { Model, DataTypes } = require("sequelize");
 const sequelize = require("../config/connection");
 
-class Game extends Model{}
+class Game extends Model { }
 
 Game.init({
-    title:{
+    title: {
         type: DataTypes.STRING,
-        allowNull:false,
-        unique:true
+        allowNull: false,
+        unique: true
     },
-    publisher:{
+    publisher: {
         type: DataTypes.STRING,
         default: 'Unknown'
     },
-    realeaseDate:{
+    realeaseDate: {
         type: DataTypes.DATE,
-        allowNull:true
+        allowNull: true
     }
-},{
+}, {
     sequelize
 });
 
-module.exports=Game
+module.exports = Game
