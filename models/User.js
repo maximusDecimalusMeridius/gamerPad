@@ -44,6 +44,7 @@ User.init({
     },
     profilePicture: {
         type: DataTypes.STRING,
+        defaultValue: 'https://placekitten.com/200/200'
     },
 }, {
     sequelize,
