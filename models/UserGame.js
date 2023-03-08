@@ -1,31 +1,31 @@
-const {Model, DataTypes} = require("sequelize");
+const { Model, DataTypes } = require("sequelize");
 const sequelize = require("../config/connection");
 
-class UserGame extends Model{}
+class UserGame extends Model { }
 
 UserGame.init({
-    favorite:{
+    favorite: {
         type: DataTypes.BOOLEAN,
-        default:false
+        default: false
     },
-    lookingForMore:{
+    lookingForMore: {
         type: DataTypes.BOOLEAN,
-        default:false
+        default: false
     },
-    content:{
+    content: {
         type: DataTypes.INTEGER,
-        allowNull:false
+        allowNull: false
     },
-    value:{
+    value: {
         type: DataTypes.INTEGER,
-        allowNull:false
+        allowNull: false
     },
-    replay:{
+    replay: {
         type: DataTypes.INTEGER,
-        allowNull:false
+        allowNull: false
     }
-},{
+}, {
     sequelize
 });
 
-module.exports=UserGame
+module.exports = UserGame
