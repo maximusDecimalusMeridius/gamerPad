@@ -14,7 +14,7 @@ Game.init({
         default: 'Unknown'
     },
     realeaseDate: {
-        type: DataTypes.DATE,
+        type: DataTypes.DATEONLY,
         allowNull: true
     }
 }, {
