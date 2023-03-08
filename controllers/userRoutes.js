@@ -3,17 +3,41 @@ const express = require("express");
 const User = require("../models/User");
 const router = express.Router();
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const { Op } = require("sequelize");
 
 //GET all records
 router.get("/", async (req, res) => {
     try {
-        const results = await User.findAll({});
-        res.json(results);
+        const allUsers = await User.findAll({});
+        res.json(allUsers);
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Error getting all users!" })
     }
 })
+
+// Check if token is valide
+router.get("/isValidToken", (req, res) => {
+    const token = req.headers?.authorization?.split(" ")[1];
+    if (!token) {
+      return res
+        .status(403)
+        .json({ isValid: false, msg: "you must be logged in!" });
+    }
+    try {
+      const tokenData = jwt.verify(token,process.env.JWT_SECRET);
+      res.json({
+        isValid: true,
+        user: tokenData,
+      });
+    } catch (err) {
+      res.status(403).json({
+        isValid: false,
+        msg: "invalid token",
+      });
+    }
+  });
 
 //GET one record by id
 router.get("/:id", async (req, res) => {
@@ -37,12 +61,25 @@ router.get("/:id", async (req, res) => {
 //TODO: Add a signed token
 router.post("/", async (req, res) => {
     try {
-        const result = await User.create({
+        const newUser = await User.create({
             username: req.body.username,
-            password: req.body.password
+            password: req.body.password,
+            email: req.body.email
         })
-
-        res.json(result);
+        const token = jwt.sign(
+            {
+              username: newUser.username,
+              id: newUser.id,
+            },
+            process.env.JWT_SECRET,
+            {
+              expiresIn: "24h",
+            }
+          );
+          res.json({
+            token,
+            user: newUser,
+          });
     } catch (error) {
         console.error(error);
         res.status(500).json({ msg: 'Error creating new user' })
@@ -53,10 +90,7 @@ router.post("/", async (req, res) => {
 //TODO: Check for token
 router.put("/:id", async (req, res) => {
     try {
-        const result = await User.update({
-            username: req.body.title,
-            password: req.body.content
-        }, {
+        const result = await User.update(req.body, {
             where: {
                 id: req.params.id
             }
@@ -97,34 +131,39 @@ router.delete("/:id", async (req, res) => {
 //TODO: Add a signed token
 router.post("/login", async (req, res) => {
     try {
-        const results = User.findOne({
+        const foundUser = await User.findOne({
             where: {
-                username: req.body.username
+                [Op.or]: [{ username: req.body.login }, [{ email: req.body.login }]]
             }
         })
 
-        if (!results) {
-            return res.status(401).json({ msg: "Login POST - Incorrect Username" })
+        if (!foundUser) {
+            return res.status(401).json({ msg: "Login POST - Incorrect Login" })
+        } else if (!bcrypt.compareSync(req.body.password, foundUser.password)) {
+            return res.status(401).json({ msg: "Login POST - Incorrect Password" })
         } else {
-            if (bcrypt.compareSync(req.body.password, userData.password)) {
-                return res.json(results)
-            } else {
-                return res.status(401).json({ msg: "Login POST - Incorrect Password" })
-            }
+            const token = jwt.sign(
+                {
+                  username: foundUser.username,
+                  id: foundUser.id,
+                  Theme: foundUser.Theme
+                },
+                process.env.JWT_SECRET,
+                {
+                  expiresIn: "6h",
+                }
+              );
+              res.json({
+                token,
+                user: foundUser,
+              });
         }
+        
     } catch (error) {
         console.log(error);
         res.status(500).json({ msg: "Error - logging in" });
     }
 })
 
-//TODO: Define logout route
-router.post("/logout", async (req, res) => {
-    try {
-
-    } catch (error) {
-
-    }
-})
 
 module.exports = router;
