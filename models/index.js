@@ -7,40 +7,44 @@ const Game = require(`./Game`);
 const Platform = require(`./Platform`);
 
 //Friends relation
-User.belongsToMany(User, { through: UserFriend, as: 'Friend', foreignKey: 'friendId' });
-User.belongsToMany(User, { through: UserFriend, as: 'User', foreignKey: 'userId' });
+// User.belongsToMany(User, { through: UserFriend, as: 'Friend', foreignKey: 'friendId' });
+// User.belongsToMany(User, { through: UserFriend, as: 'User', foreignKey: 'userId' });
 
 //Shared Notes and User relation
-Note.belongsToMany(User, { through:'UserNote'});
-User.belongsToMany(Note, {through:'UserNote'});
+// Note.belongsToMany(User, { through:'UserNote'});
+// User.belongsToMany(Note, {through:'UserNote'});
 
 //Note and User Author relation
 User.hasMany(Note, { as: "WritenNotes", foreignKey: "AuthorId"})
 Note.belongsTo(User, { as: "Author", foreignKey: "AuthorId"})
 
+//Shared Note and User relation
+User.hasMany(Note, { as: "SharedNotes", foreignKey: "SharedId"})
+Note.belongsTo(User, { as: "Owner", foreignKey: "SharedId"})
+
 //User and Platform
-User.belongsToMany(Platform, { through: UserGame });
-Platform.belongsToMany(User, { through: UserGame });
+// User.belongsToMany(Platform, { through: UserGame });
+// Platform.belongsToMany(User, { through: UserGame });
 
 //Account to User relation
-Account.hasOne(User);
-User.hasMany(Account);
+// Account.hasOne(User);
+// User.hasMany(Account);
 
 //Account to Game
-Account.belongsToMany(Game, { through: UserGame });
-Game.belongsToMany(Account, { through: UserGame });
+// Account.belongsToMany(Game, { through: UserGame });
+// Game.belongsToMany(Account, { through: UserGame });
 
 //Account to Platform relation
-Account.belongsToMany(Platform, { through: UserGame });
-Platform.belongsToMany(Account, { through: UserGame });
+// Account.belongsToMany(Platform, { through: UserGame });
+// Platform.belongsToMany(Account, { through: UserGame });
 
 //Game to User
-Game.belongsTo(User, { through: UserGame });
-User.belongsTo(Game, { through: UserGame });
+// Game.belongsTo(User, { through: UserGame });
+// User.belongsTo(Game, { through: UserGame });
 
 //Game to platform
-Game.belongsToMany(UserGame, { through: Platform });
-UserGame.belongsToMany(Game, { through: Platform });
+// Game.belongsToMany(UserGame, { through: Platform });
+// UserGame.belongsToMany(Game, { through: Platform });
 
 module.exports = {
     User,

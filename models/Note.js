@@ -13,6 +13,14 @@ Note.init({
     },
     color: {
         type: DataTypes.STRING
+    },
+    author:{
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    isShared:{
+        type: DataTypes.BOOLEAN,
+        defaultValue:false
     }
 }, {
     sequelize
