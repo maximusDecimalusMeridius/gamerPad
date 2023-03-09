@@ -5,6 +5,7 @@ const app = express();
 const path = require('path');
 require("dotenv").config();
 const allRoutes = require("./controllers");
+const cors = require("cors")
 
 //define sequelize connection in /config/connection
 const sequelize = require('./config/connection');
@@ -18,6 +19,7 @@ const { Account, Game, Note, Platform, User, UserFriend, UserGame } = require(".
 //use express methods to interpret JSON objects
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cors());
 
 //references API routes in /controllers for each model
 app.use('/api', allRoutes);

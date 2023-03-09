@@ -21,23 +21,23 @@ router.get("/", async (req, res) => {
 router.get("/isValidToken", (req, res) => {
     const token = req.headers?.authorization?.split(" ")[1];
     if (!token) {
-      return res
-        .status(403)
-        .json({ isValid: false, msg: "you must be logged in!" });
+        return res
+            .status(403)
+            .json({ isValid: false, msg: "you must be logged in!" });
     }
     try {
-      const tokenData = jwt.verify(token,process.env.JWT_SECRET);
-      res.json({
-        isValid: true,
-        user: tokenData,
-      });
+        const tokenData = jwt.verify(token, process.env.JWT_SECRET);
+        res.json({
+            isValid: true,
+            user: tokenData,
+        });
     } catch (err) {
-      res.status(403).json({
-        isValid: false,
-        msg: "invalid token",
-      });
+        res.status(403).json({
+            isValid: false,
+            msg: "invalid token",
+        });
     }
-  });
+});
 
 //GET one record by id
 router.get("/:id", async (req, res) => {
@@ -68,18 +68,18 @@ router.post("/", async (req, res) => {
         })
         const token = jwt.sign(
             {
-              username: newUser.username,
-              id: newUser.id,
+                username: newUser.username,
+                id: newUser.id,
             },
             process.env.JWT_SECRET,
             {
-              expiresIn: "24h",
+                expiresIn: "24h",
             }
-          );
-          res.json({
+        );
+        res.json({
             token,
             user: newUser,
-          });
+        });
     } catch (error) {
         console.error(error);
         res.status(500).json({ msg: 'Error creating new user' })
@@ -144,21 +144,21 @@ router.post("/login", async (req, res) => {
         } else {
             const token = jwt.sign(
                 {
-                  username: foundUser.username,
-                  id: foundUser.id,
-                  Theme: foundUser.Theme
+                    username: foundUser.username,
+                    id: foundUser.id,
+                    Theme: foundUser.Theme
                 },
                 process.env.JWT_SECRET,
                 {
-                  expiresIn: "6h",
+                    expiresIn: "6h",
                 }
-              );
-              res.json({
+            );
+            res.json({
                 token,
                 user: foundUser,
-              });
+            });
         }
-        
+
     } catch (error) {
         console.log(error);
         res.status(500).json({ msg: "Error - logging in" });
