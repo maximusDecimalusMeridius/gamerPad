@@ -21,23 +21,23 @@ router.get("/", async (req, res) => {
 router.get("/isValidToken", (req, res) => {
     const token = req.headers?.authorization?.split(" ")[1];
     if (!token) {
-      return res
-        .status(403)
-        .json({ isValid: false, msg: "you must be logged in!" });
+        return res
+            .status(403)
+            .json({ isValid: false, msg: "you must be logged in!" });
     }
     try {
-      const tokenData = jwt.verify(token,process.env.JWT_SECRET);
-      res.json({
-        isValid: true,
-        user: tokenData,
-      });
+        const tokenData = jwt.verify(token, process.env.JWT_SECRET);
+        res.json({
+            isValid: true,
+            user: tokenData,
+        });
     } catch (err) {
-      res.status(403).json({
-        isValid: false,
-        msg: "invalid token",
-      });
+        res.status(403).json({
+            isValid: false,
+            msg: "invalid token",
+        });
     }
-  });
+});
 
 //GET one record by id
 router.get("/:id", async (req, res) => {
@@ -57,8 +57,7 @@ router.get("/:id", async (req, res) => {
     }
 })
 
-//POST a new record
-//TODO: Add a signed token
+//POST a new User
 router.post("/", async (req, res) => {
     try {
         const newUser = await User.create({
@@ -68,18 +67,18 @@ router.post("/", async (req, res) => {
         })
         const token = jwt.sign(
             {
-              username: newUser.username,
-              id: newUser.id,
+                username: newUser.username,
+                id: newUser.id,
             },
             process.env.JWT_SECRET,
             {
-              expiresIn: "24h",
+                expiresIn: "24h",
             }
-          );
-          res.json({
+        );
+        res.json({
             token,
             user: newUser,
-          });
+        });
     } catch (error) {
         console.error(error);
         res.status(500).json({ msg: 'Error creating new user' })
@@ -87,19 +86,28 @@ router.post("/", async (req, res) => {
 })
 
 //UPDATE a record
-//TODO: Check for token
 router.put("/:id", async (req, res) => {
+    const token = req.headers?.authorization?.split(" ")[1];
+    if (!token) {
+        return res.status(403).json({ msg: "you must be logged in to edit User!" });
+    }
     try {
-        const result = await User.update(req.body, {
-            where: {
-                id: req.params.id
-            }
-        })
+        const tokenData = jwt.verify(token, process.env.JWT_SECRET);
+        const foundUser = await User.findByPk(req.params.id)
 
-        if (result[0]) {
-            return res.json(result);
+        if (!foundUser) {
+            return res.status(404).json({ msg: "no such User!" });
+        }
+        if (foundUser.id !== tokenData.id) {
+            return res.status(403).json({ msg: "you can only edit logged in User!" });
         } else {
-            return res.status(404).json({ message: "Record doesn't exist!" });
+            const updatedUser = await User.update(req.body, {
+                where: {
+                    id: req.params.id
+                }
+            })
+
+            return res.json(updatedUser)
         }
     } catch (error) {
         console.error(error);
@@ -109,17 +117,27 @@ router.put("/:id", async (req, res) => {
 
 //DELETE a record
 router.delete("/:id", async (req, res) => {
+    const token = req.headers?.authorization?.split(" ")[1];
+    if (!token) {
+        return res.status(403).json({ msg: "you must be logged in to delete User!" });
+    }
     try {
-        const results = await User.destroy({
-            where: {
-                id: req.params.id
-            }
-        })
+        const tokenData = jwt.verify(token, process.env.JWT_SECRET);
+        const foundUser = await User.findByPk(req.params.id)
 
-        if (results) {
-            return res.json(results)
+        if (!foundUser) {
+            return res.status(404).json({ msg: "no such User!" });
+        }
+        if (foundUser.id !== tokenData.id) {
+            return res.status(403).json({ msg: "you can only edit logged in User!" });
         } else {
-            return res.status(404).json({ message: "ACCOUNT Delete - Record doesn't exist!" })
+            const results = await User.destroy({
+                where: {
+                    id: req.params.id
+                }
+            })
+
+            return res.json(results)
         }
     } catch (error) {
         console.error(error);
@@ -128,7 +146,6 @@ router.delete("/:id", async (req, res) => {
 })
 
 //POST route for login
-//TODO: Add a signed token
 router.post("/login", async (req, res) => {
     try {
         const foundUser = await User.findOne({
@@ -144,21 +161,21 @@ router.post("/login", async (req, res) => {
         } else {
             const token = jwt.sign(
                 {
-                  username: foundUser.username,
-                  id: foundUser.id,
-                  Theme: foundUser.Theme
+                    username: foundUser.username,
+                    id: foundUser.id,
+                    Theme: foundUser.Theme
                 },
                 process.env.JWT_SECRET,
                 {
-                  expiresIn: "6h",
+                    expiresIn: "6h",
                 }
-              );
-              res.json({
+            );
+            res.json({
                 token,
                 user: foundUser,
-              });
+            });
         }
-        
+
     } catch (error) {
         console.log(error);
         res.status(500).json({ msg: "Error - logging in" });
