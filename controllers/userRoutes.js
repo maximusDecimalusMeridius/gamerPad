@@ -9,7 +9,7 @@ const { Op } = require("sequelize");
 //GET all records
 router.get("/", async (req, res) => {
     try {
-        const allUsers = await User.findAll({include:[{model:Note, as: "writenNotes", foreignKey: "AuthorId"}]});
+        const allUsers = await User.findAll();
         res.json(allUsers);
     } catch (error) {
         console.error(error);

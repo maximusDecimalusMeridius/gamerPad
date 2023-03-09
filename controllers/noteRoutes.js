@@ -5,33 +5,63 @@ const {Note, User} = require("../models");
 const jwt = require("jsonwebtoken");
 
 //GET all records
-router.get("/", async (req, res) => {
-    try {
-        const results = await Note.findAll({
-            include:[{model:User, as: "author", foreignKey: "AuthorId"}]
-        });
-        res.json(results);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Error getting all Notes!" })
+// router.get("/", async (req, res) => {
+//     try {
+//         const results = await Note.findAll({
+//             include:[{model:User, as: "Author", foreignKey: "AuthorId"}]
+//         });
+//         res.json(results);
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).json({ message: "Error getting all Notes!" })
+//     }
+// })
+
+//GET Notes by current logged in user
+router.get("/currentUserNotes", async (req, res) => {
+    const token = req.headers?.authorization?.split(" ")[1];
+    if (!token) {
+        return res.status(403).json({ msg: "you must be logged in to See Notes" });
     }
-})
-
-//GET one record by id
-router.get("/:id", async (req, res) => {
     try {
-        const results = await Note.findByPk(req.params.id);
+        const tokenData = jwt.verify(token, process.env.JWT_SECRET);
 
-        if (results) {
-            return res.json(results);
+        const userData = await User.findByPk(tokenData.id, {include:[{model:Note, as: "WritenNotes", foreignKey: "AuthorId"},{model:Note, include:[{model:User, as: "Author", attributes:["username"]}]}], attributes:["id", "username"]});
+
+        if (userData) {
+            return res.json(userData);
         } else {
             res.status(404).json({
-                message: "No record exists!"
+                message: "No such user exists!"
             })
         }
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: "Error getting data - couldn't find Note" })
+        res.status(500).json({ message: "Error getting data - couldn't find Users Notes" })
+    }
+})
+
+//Share note with User
+router.post("/addUser", async (req, res) => {
+    const token = req.headers?.authorization?.split(" ")[1];
+    if (!token) {
+        return res
+            .status(403)
+            .json({ isValid: false, msg: "you must be logged in to share a Note!" });
+    }
+    try{
+        const noteData = await Note.findByPk(req.body.NoteId);
+    if(!noteData){
+        res.status(404).json({
+            message: "No such note exists!"
+        })
+    } else {
+        const userNoteData = await noteData.addUser(req.body.UserId)
+        res.json(userNoteData)
+    }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error getting data" })
     }
 })
 
@@ -58,13 +88,24 @@ router.post("/", async (req, res) => {
 })
 
 //UPDATE a record
-//TODO: Check for token
 router.put("/:id", async (req, res) => {
+    const token = req.headers?.authorization?.split(" ")[1];
+    if (!token) {
+        return res.status(403).json({ msg: "you must be logged in to add a Note" });
+    }
     try {
-        const result = await Note.update({
-            //TODO: Add Note attributes
-            Thing1: "Object property"
-        }, {
+        const tokenData = jwt.verify(token, process.env.JWT_SECRET);
+        const foundNote = await Note.findByPk(req.params.id)
+
+        if (!foundNote) {
+            return res.status(404).json({ msg: "no such Note!" });
+        }
+
+        if (foundNote.AuthorId !== tokenData.id) {
+            return res.status(403).json({ msg: "you can only edit a note you wrote!" });
+        }
+
+        const result = await Note.update(req.body, {
             where: {
                 id: req.params.id
             }
@@ -83,7 +124,22 @@ router.put("/:id", async (req, res) => {
 
 //DELETE a record
 router.delete("/:id", async (req, res) => {
+    const token = req.headers?.authorization?.split(" ")[1];
+    if (!token) {
+        return res.status(403).json({ msg: "you must be logged in to Delete a Note" });
+    }
     try {
+        const tokenData = jwt.verify(token, process.env.JWT_SECRET);
+        const foundNote = await Note.findByPk(req.params.id)
+
+        if (!foundNote) {
+            return res.status(404).json({ msg: "no such Note!" });
+        }
+
+        if (foundNote.AuthorId !== tokenData.id) {
+            return res.status(403).json({ msg: "you can only delete a note you wrote!" });
+        }
+
         const results = await Note.destroy({
             where: {
                 id: req.params.id

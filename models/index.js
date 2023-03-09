@@ -10,11 +10,13 @@ const Platform = require(`./Platform`);
 User.belongsToMany(User, { through: UserFriend, as: 'Friend', foreignKey: 'friendId' });
 User.belongsToMany(User, { through: UserFriend, as: 'User', foreignKey: 'userId' });
 
-//Note and User relation
-// Note.belongsToMany(User, { through: "UserNote", as: 'User', foreignKey: 'userId' });
-// User.belongsToMany(Note, { through: "UserNote", as: "SharedNote", foreignKey: "sharedId" });
-User.hasMany(Note, { as: "writenNotes", foreignKey: "AuthorId"})
-Note.belongsTo(User, { as: "author", foreignKey: "AuthorId"})
+//Shared Notes and User relation
+Note.belongsToMany(User, { through:'UserNote'});
+User.belongsToMany(Note, {through:'UserNote'});
+
+//Note and User Author relation
+User.hasMany(Note, { as: "WritenNotes", foreignKey: "AuthorId"})
+Note.belongsTo(User, { as: "Author", foreignKey: "AuthorId"})
 
 //User and Platform
 User.belongsToMany(Platform, { through: UserGame });
