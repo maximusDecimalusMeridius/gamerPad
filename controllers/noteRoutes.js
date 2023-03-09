@@ -1,7 +1,7 @@
 //loop in dependencies
 const express = require("express");
 const router = express.Router();
-const {Note, User} = require("../models");
+const {Note, User, UserNote} = require("../models");
 const jwt = require("jsonwebtoken");
 
 //GET all records
@@ -133,11 +133,11 @@ router.delete("/:id", async (req, res) => {
         const foundNote = await Note.findByPk(req.params.id)
 
         if (!foundNote) {
-            return res.status(404).json({ msg: "no such Note!" });
+            return res.status(404).json({ msg: "No such Note!" });
         }
 
         if (foundNote.AuthorId !== tokenData.id) {
-            return res.status(403).json({ msg: "you can only delete a note you wrote!" });
+            return res.status(403).json({ msg: "You can only delete a note you wrote!" });
         }
 
         const results = await Note.destroy({
@@ -151,6 +151,30 @@ router.delete("/:id", async (req, res) => {
         } else {
             return res.status(404).json({ message: "Note Delete - Record doesn't exist!" })
         }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error deleting record!" });
+    }
+})
+
+//REMOVE a shared Note
+router.delete("/removeSharedNote/:id", async (req, res) => {
+    const token = req.headers?.authorization?.split(" ")[1];
+    if (!token) {
+        return res.status(403).json({ msg: "you must be logged in to Delete a Shared Note" });
+    }
+    try {
+        const tokenData = jwt.verify(token, process.env.JWT_SECRET);
+        const foundNote = await Note.findByPk(req.params.id)
+
+        if (!foundNote) {
+            return res.status(404).json({ msg: "no such Shared Note!" });
+        }
+
+        const removeConnection = foundNote.removeUser(tokenData.id)
+
+        return res.json(removeConnection)
+
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Error deleting record!" });
