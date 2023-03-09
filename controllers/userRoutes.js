@@ -1,6 +1,6 @@
 //loop in dependencies
 const express = require("express");
-const User = require("../models/User");
+const {User,Note} = require("../models");
 const router = express.Router();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -9,7 +9,7 @@ const { Op } = require("sequelize");
 //GET all records
 router.get("/", async (req, res) => {
     try {
-        const allUsers = await User.findAll({});
+        const allUsers = await User.findAll();
         res.json(allUsers);
     } catch (error) {
         console.error(error);

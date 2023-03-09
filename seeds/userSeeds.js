@@ -1,5 +1,6 @@
 const {User} = require('../models');
-const userData = [
+const seedUser = async () => {
+    const users = await User.bulkCreate([
     {
         username: `CoolKat83`,
         email: `ILikeCats@everykindof.cat`,
@@ -21,14 +22,16 @@ const userData = [
     {
         username: `ChillCucumber76`,
         email: `veggiegirl@chomp.yum`,
-        password: `veggilicous`,
+        password: `Veggil1cous?`,
         lookingForFriends: true,
         friendCode: `crunchandmuch`,
         Theme: `light`,
         profilePicture: `http://placekitten.com/200/200`,
     },
-]
-
-const seedUser = () => User.bulkCreate(userData);
+],{
+    validate:true,
+    individualHooks:true
+  })
+}
 
 module.exports = seedUser;
