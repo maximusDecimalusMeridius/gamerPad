@@ -1,6 +1,6 @@
 //loop in dependencies
 const express = require("express");
-const User = require("../models/User");
+const {User,Note} = require("../models");
 const router = express.Router();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -9,7 +9,7 @@ const { Op } = require("sequelize");
 //GET all records
 router.get("/", async (req, res) => {
     try {
-        const allUsers = await User.findAll({});
+        const allUsers = await User.findAll();
         res.json(allUsers);
     } catch (error) {
         console.error(error);
@@ -57,8 +57,7 @@ router.get("/:id", async (req, res) => {
     }
 })
 
-//POST a new record
-//TODO: Add a signed token
+//POST a new User
 router.post("/", async (req, res) => {
     try {
         const newUser = await User.create({
@@ -87,19 +86,28 @@ router.post("/", async (req, res) => {
 })
 
 //UPDATE a record
-//TODO: Check for token
 router.put("/:id", async (req, res) => {
+    const token = req.headers?.authorization?.split(" ")[1];
+    if (!token) {
+        return res.status(403).json({ msg: "you must be logged in to edit User!" });
+    }
     try {
-        const result = await User.update(req.body, {
-            where: {
-                id: req.params.id
-            }
-        })
+        const tokenData = jwt.verify(token, process.env.JWT_SECRET);
+        const foundUser = await User.findByPk(req.params.id)
 
-        if (result[0]) {
-            return res.json(result);
+        if (!foundUser) {
+            return res.status(404).json({ msg: "no such User!" });
+        }
+        if (foundUser.id !== tokenData.id) {
+            return res.status(403).json({ msg: "you can only edit logged in User!" });
         } else {
-            return res.status(404).json({ message: "Record doesn't exist!" });
+            const updatedUser = await User.update(req.body, {
+                where: {
+                    id: req.params.id
+                }
+            })
+
+            return res.json(updatedUser)
         }
     } catch (error) {
         console.error(error);
@@ -109,17 +117,27 @@ router.put("/:id", async (req, res) => {
 
 //DELETE a record
 router.delete("/:id", async (req, res) => {
+    const token = req.headers?.authorization?.split(" ")[1];
+    if (!token) {
+        return res.status(403).json({ msg: "you must be logged in to delete User!" });
+    }
     try {
-        const results = await User.destroy({
-            where: {
-                id: req.params.id
-            }
-        })
+        const tokenData = jwt.verify(token, process.env.JWT_SECRET);
+        const foundUser = await User.findByPk(req.params.id)
 
-        if (results) {
-            return res.json(results)
+        if (!foundUser) {
+            return res.status(404).json({ msg: "no such User!" });
+        }
+        if (foundUser.id !== tokenData.id) {
+            return res.status(403).json({ msg: "you can only edit logged in User!" });
         } else {
-            return res.status(404).json({ message: "ACCOUNT Delete - Record doesn't exist!" })
+            const results = await User.destroy({
+                where: {
+                    id: req.params.id
+                }
+            })
+
+            return res.json(results)
         }
     } catch (error) {
         console.error(error);
@@ -128,7 +146,6 @@ router.delete("/:id", async (req, res) => {
 })
 
 //POST route for login
-//TODO: Add a signed token
 router.post("/login", async (req, res) => {
     try {
         const foundUser = await User.findOne({
