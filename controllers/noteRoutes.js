@@ -1,12 +1,15 @@
 //loop in dependencies
 const express = require("express");
 const router = express.Router();
-const Note = require("../models/Note");
+const {Note, User} = require("../models");
+const jwt = require("jsonwebtoken");
 
 //GET all records
 router.get("/", async (req, res) => {
     try {
-        const results = await Note.findAll({});
+        const results = await Note.findAll({
+            include:[{model:User, as: "author", foreignKey: "AuthorId"}]
+        });
         res.json(results);
     } catch (error) {
         console.error(error);
@@ -33,12 +36,18 @@ router.get("/:id", async (req, res) => {
 })
 
 //POST a new record
-//TODO: Add a signed token
 router.post("/", async (req, res) => {
+    const token = req.headers?.authorization?.split(" ")[1];
+    if (!token) {
+        return res.status(403).json({ msg: "you must be logged in to add a Note" });
+    }
+    const tokenData = jwt.verify(token, process.env.JWT_SECRET);
     try {
         const result = await Note.create({
-            //TODO: Add Note attributes
-            Thing1: "Object property"
+            title:req.body.title,
+            textContent:req.body.textContent,
+            color:req.body.color,
+            AuthorId:tokenData.id
         })
 
         res.json(result);

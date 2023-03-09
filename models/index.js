@@ -11,10 +11,10 @@ User.belongsToMany(User, { through: UserFriend, as: 'Friend', foreignKey: 'frien
 User.belongsToMany(User, { through: UserFriend, as: 'User', foreignKey: 'userId' });
 
 //Note and User relation
-User.hasMany(Note);
-Note.belongsToMany(User, { through: "UserNote", as: "SharedNote", foreignKey: "sharedId" });
-User.belongsToMany(Note, { through: "UserNote", as: "SharedNote", foreignKey: "authorId" });
-User.hasMany(Note, { as: "Author", foreignKey: "authorId" })
+// Note.belongsToMany(User, { through: "UserNote", as: 'User', foreignKey: 'userId' });
+// User.belongsToMany(Note, { through: "UserNote", as: "SharedNote", foreignKey: "sharedId" });
+User.hasMany(Note, { as: "writenNotes", foreignKey: "AuthorId"})
+Note.belongsTo(User, { as: "author", foreignKey: "AuthorId"})
 
 //User and Platform
 User.belongsToMany(Platform, { through: UserGame });
