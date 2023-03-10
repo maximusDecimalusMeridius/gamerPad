@@ -6,9 +6,10 @@ const userGameData = [
         content: 10,
         value: 10,
         replay: 100,
-        PlatformId: 1,
-        AccountId: 1,
         UserId: 1,
+        AccountId: 1,
+        PlatformId: 1,
+        GameId: 1,
     }
 ]
 

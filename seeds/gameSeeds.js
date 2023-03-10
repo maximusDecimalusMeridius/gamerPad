@@ -1,16 +1,15 @@
 const {Game} = require('../models');
-const gameData = [
+const fs = require('fs');
+
+const pulledGamesRaw = JSON.parse(fs.readFileSync('./db/apiData/OurGameData.json'));
+//const pulledGames = pulledGamesRaw
+
+const forcedGameSeeds = [
     {
         title: 'Cat Quest II',
         publisher: 'Kepler Interactive',
         releaseDate: '10/23/2019',
         UserId: 1,
-    },
-    {
-        title: 'Cyberpunk 2077',
-        publisher: 'CD Projekt RED',
-        releaseDate: '12/9/2020',
-        UserId: 2,
     },
     {
         title: 'Fruit Ninja',
@@ -19,6 +18,8 @@ const gameData = [
         UserId: 3,
     }
 ]
+
+const gameData = pulledGamesRaw.concat(forcedGameSeeds)
 
 const seedGame = () => Game.bulkCreate(gameData);
 

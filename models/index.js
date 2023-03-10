@@ -22,29 +22,35 @@ Note.belongsTo(User, { as: "Author", foreignKey: "AuthorId"})
 User.hasMany(Note, { as: "SharedNotes", foreignKey: "SharedId"})
 Note.belongsTo(User, { as: "Owner", foreignKey: "SharedId"})
 
-//User and Platform
+//Account to User relation
+Account.hasOne(User);
+User.hasMany(Account);
+
+User.hasMany(UserGame);
+Account.hasMany(UserGame);
+Platform.hasMany(UserGame);
+UserGame.belongsTo(User);
+UserGame.belongsTo(Account);
+UserGame.belongsTo(Platform);
+// //User and Platform
 // User.belongsToMany(Platform, { through: UserGame });
 // Platform.belongsToMany(User, { through: UserGame });
 
-//Account to User relation
-// Account.hasOne(User);
-// User.hasMany(Account);
-
-//Account to Game
+// //Account to Game
 // Account.belongsToMany(Game, { through: UserGame });
 // Game.belongsToMany(Account, { through: UserGame });
 
-//Account to Platform relation
+// //Account to Platform relation
 // Account.belongsToMany(Platform, { through: UserGame });
 // Platform.belongsToMany(Account, { through: UserGame });
 
-//Game to User
-// Game.belongsTo(User, { through: UserGame });
-// User.belongsTo(Game, { through: UserGame });
+// //Game to User
+// Game.belongsToMany(User, { through: UserGame});
+// User.belongsToMany(Game, { through: UserGame });
 
-//Game to platform
-// Game.belongsToMany(UserGame, { through: Platform });
-// UserGame.belongsToMany(Game, { through: Platform });
+// //Game to platform
+Game.belongsToMany(Platform, { through: UserGame });
+Platform.belongsToMany(Game, { through: UserGame });
 
 module.exports = {
     User,

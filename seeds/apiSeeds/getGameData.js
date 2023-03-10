@@ -39,11 +39,16 @@ const testFetch = async (count) => {
 }
 
 const makeGames = async() => {
-    const fetchArrayRaw = await fetch(`http://localhost:3000/api/games/rawg/create`);
-    const fetchArray = await fetchArrayRaw.json();
-    const cleanData = JSON.parse(fetchArray)
-    console.log(cleanData);
+    const hasPassed = localStorage.getItem('makepass');
+    if(hasPassed != 'true') {
+        localStorage.setItem('makepass', 'true');
+        const fetchArrayRaw = await fetch(`http://localhost:3000/api/games/rawg/create`);
+        const fetchArray = await fetchArrayRaw.json();
+        const cleanData = JSON.parse(fetchArray)
+        console.log(cleanData);
+    }
+    
 }
 
 //getRawgData();
-makeGames();
+//makeGames();

@@ -14,7 +14,7 @@ Game.init({
         default: 'Unknown'
     },
     //make this a standardized date format using dayjs
-    realeaseDate: {
+    releaseDate: {
         type: DataTypes.STRING,
         allowNull: true
     }
