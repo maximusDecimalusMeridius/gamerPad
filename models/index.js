@@ -7,8 +7,8 @@ const Game = require(`./Game`);
 const Platform = require(`./Platform`);
 
 //Friends relation
-// User.belongsToMany(User, { through: UserFriend, as: 'Friend', foreignKey: 'friendId' });
-// User.belongsToMany(User, { through: UserFriend, as: 'User', foreignKey: 'userId' });
+User.belongsToMany(User, { through: "UserFriend", as: 'Friends', foreignKey: 'FriendId', otherKey: 'UserId' });
+User.belongsToMany(User, { through: "UserFriend", as: 'Users', foreignKey: 'UserId', otherKey:'FriendId'});
 
 //Shared Notes and User relation
 // Note.belongsToMany(User, { through:'UserNote'});
@@ -27,8 +27,8 @@ Note.belongsTo(User, { as: "Owner", foreignKey: "SharedId"})
 // Platform.belongsToMany(User, { through: UserGame });
 
 //Account to User relation
-// Account.hasOne(User);
-// User.hasMany(Account);
+Account.belongsTo(User);
+User.hasMany(Account);
 
 //Account to Game
 // Account.belongsToMany(Game, { through: UserGame });

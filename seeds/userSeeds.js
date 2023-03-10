@@ -32,6 +32,11 @@ const seedUser = async () => {
     validate:true,
     individualHooks:true
   })
+
+  await users[0].addUser(users[1])
+  await users[1].addUser(users[0])
+  await users[0].addUser(users[2])
+  await users[2].addUser(users[0])
 }
 
 module.exports = seedUser;

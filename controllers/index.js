@@ -13,4 +13,7 @@ router.use("/notes", noteRoutes);
 const gameRoutes = require("./gameRoutes");
 router.use("/games", gameRoutes);
 
+const friendRoutes = require("./friendRoutes");
+router.use("/friends", friendRoutes);
+
 module.exports = router;
