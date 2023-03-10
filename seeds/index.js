@@ -29,9 +29,6 @@ const seedAll = async () => {
     // await seedPlatform();
     // console.log("\n----- PLATFORMS SEEDED -----\n");
 
-    // await seedUserFriend();
-    // console.log("\n----- USERFRIENDS SEEDED -----\n");
-
     // await seedUserGame();
     // console.log("\n----- USERGAMES SEEDED -----\n");
 
