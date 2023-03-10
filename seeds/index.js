@@ -3,7 +3,6 @@ const seedAccounts = require('./accountSeeds');
 const seedGame = require('./gameSeeds');
 const seedNote = require('./noteSeeds');
 const seedPlatform = require('./platformSeeds');
-const seedUserFriend = require('./userFriendSeeds');
 const seedUserGame = require('./userGameSeeds');
 const seedUser = require('./userSeeds');
 

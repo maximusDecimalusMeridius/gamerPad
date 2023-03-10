@@ -1,7 +1,8 @@
 //loop in dependencies
 const express = require("express");
 const router = express.Router();
-const Account = require("../models/Account");
+const {Account, User} = require("../models");
+const jwt = require("jsonwebtoken");
 
 //GET all records
 router.get("/", async (req, res) => {
@@ -14,10 +15,15 @@ router.get("/", async (req, res) => {
     }
 })
 
-//GET one record by id
-router.get("/:id", async (req, res) => {
+//GET accounts by user id
+router.get("/currentUserAccounts", async (req, res) => {
+    const token = req.headers?.authorization?.split(" ")[1];
+    if (!token) {
+        return res.status(403).json({ msg: "you must be logged in to get accounts by user id!" });
+    }
     try {
-        const results = await Account.findByPk(req.params.id);
+        const tokenData = jwt.verify(token, process.env.JWT_SECRET);
+        const results = await User.findByPk(tokenData.id, {include:[{model:Account}], attributes:["id", "username"]});
 
         if (results) {
             return res.json(results);
@@ -33,12 +39,19 @@ router.get("/:id", async (req, res) => {
 })
 
 //POST a new record
-//TODO: Add a signed token
 router.post("/", async (req, res) => {
+    const token = req.headers?.authorization?.split(" ")[1];
+    if (!token) {
+        return res.status(403).json({ msg: "you must be logged in to add an account!" });
+    }
     try {
+        const tokenData = jwt.verify(token, process.env.JWT_SECRET);
         const result = await Account.create({
-            //TODO: Add Account attributes
-            Thing1: "Object property"
+            account:req.body.account,
+            type:req.body.type,
+            username:req.body.username,
+            gamerTag:req.body.gamerTag,
+            UserId:tokenData.id
         })
 
         res.json(result);
@@ -49,23 +62,31 @@ router.post("/", async (req, res) => {
 })
 
 //UPDATE a record
-//TODO: Check for token
 router.put("/:id", async (req, res) => {
+    const token = req.headers?.authorization?.split(" ")[1];
+    if (!token) {
+        return res.status(403).json({ msg: "you must be logged in to add an account!" });
+    }
     try {
-        const result = await Account.update({
-            //TODO: Add Account attributes
-            Thing1: "Object property"
-        }, {
+        const tokenData = jwt.verify(token, process.env.JWT_SECRET);
+        const accountData = await Account.findByPk(req.params.id)
+
+        if(!accountData){
+            return res.status(404).json({ msg: "No such Account found!" });
+        }
+
+        if(tokenData.id != accountData.UserId){
+            return res.status(403).json({ msg: "You can only edit a note you created!" });
+        }
+
+        const result = await Account.update(req.body, {
             where: {
                 id: req.params.id
             }
         })
 
-        if (result[0]) {
-            return res.json(result);
-        } else {
-            return res.status(404).json({ message: "Record doesn't exist!" });
-        }
+        return res.json({msg:"Account updated!"});
+
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Error updating record!" })
@@ -74,18 +95,31 @@ router.put("/:id", async (req, res) => {
 
 //DELETE a record
 router.delete("/:id", async (req, res) => {
+    const token = req.headers?.authorization?.split(" ")[1];
+    if (!token) {
+        return res.status(403).json({ msg: "you must be logged in to delete an account!" });
+    }
     try {
+        const tokenData = jwt.verify(token, process.env.JWT_SECRET);
+        const accountData = await Account.findByPk(req.params.id)
+
+        if(!accountData){
+            return res.status(404).json({ msg: "No such Account found!" });
+        }
+
+        if(tokenData.id != accountData.UserId){
+            return res.status(403).json({ msg: "You can only delete a note you created!" });
+        }
+
         const results = await Account.destroy({
             where: {
                 id: req.params.id
             }
         })
 
-        if (results) {
-            return res.json(results)
-        } else {
-            return res.status(404).json({ message: "Account Delete - Record doesn't exist!" })
-        }
+
+        return res.json({msg:"Account deleted!"});
+
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Error deleting record!" });

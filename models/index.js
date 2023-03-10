@@ -27,8 +27,8 @@ Note.belongsTo(User, { as: "Owner", foreignKey: "SharedId"})
 // Platform.belongsToMany(User, { through: UserGame });
 
 //Account to User relation
-// Account.hasOne(User);
-// User.hasMany(Account);
+Account.belongsTo(User);
+User.hasMany(Account);
 
 //Account to Game
 // Account.belongsToMany(Game, { through: UserGame });

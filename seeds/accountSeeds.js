@@ -2,7 +2,7 @@ const {Account} = require('../models');
 const accountData = [
     {
         account: 'Xbox Live',
-        type: 'Gameing',
+        type: 'Gaming',
         username: 'BetterThanYou42',
         gamerTag: 'BetterThanYou42',
         UserId: 1,
