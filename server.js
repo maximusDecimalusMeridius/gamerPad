@@ -2,10 +2,8 @@
 //create app, create handlebars view engine, define allRoutes as index.js in /controllers
 const express = require("express");
 const app = express();
-const path = require('path');
 require("dotenv").config();
 const allRoutes = require("./controllers");
-const cors = require("cors")
 
 //define sequelize connection in /config/connection
 const sequelize = require('./config/connection');

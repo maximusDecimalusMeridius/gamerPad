@@ -1,7 +1,7 @@
 //loop in dependencies
 const express = require("express");
 const router = express.Router();
-const { Game, User, UserGame, Platform, Account } = require("../models");
+const { Game, User, UserGame, Platform, Account, UserGamePlatform } = require("../models");
 const jwt = require("jsonwebtoken");
 const fs = require(`fs`);
 const dataArray = [];
@@ -17,10 +17,38 @@ router.get("/", async (req, res) => {
     }
 });
 
+// GET all platforms
+router.get("/allPlatforms", async (req, res) => {
+    try {
+        const results = await Platform.findAll();
+        res.json(results);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error getting all platforms!" });
+    }
+});
+
+// GET a platform and their UserGames
+router.get("/allPlatforms/:id", async (req, res) => {
+    try {
+        const results = await Platform.findByPk(req.params.id,
+            {include:
+                [{model:UserGame, attributes:[["id", "UserGameId"]], include:[
+                    {model:User, attributes:["id", "username"]}, 
+                    {model:Game, attributes:["id", "title"]}
+                ]}]
+            });
+        res.json(results);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error getting all platforms and their UserGames!" });
+    }
+});
+
 router.post("/usergame", async (req, res) => {
     const token = req.headers?.authorization?.split(" ")[1];
     if (!token) {
-        return res.status(403).json({ msg: "you must be logged in to See Notes" });
+        return res.status(403).json({ msg: "you must be logged in to add UserGame" });
     }
     const tokenData = jwt.verify(token, process.env.JWT_SECRET);
 
@@ -46,46 +74,141 @@ router.post("/usergame", async (req, res) => {
     }
 });
 
+//GET one record by id
+router.get("/:id", async (req, res) => {
+    try {
+        const results = await Game.findByPk(req.params.id);
 
+        if (results) {
+            return res.json(results);
+        } else {
+            res.status(404).json({
+                message: "No record exists!"
+            })
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error getting data - Couldn't find game" })
+    }
+})
 
 //route to get a users userGames
-router.get("/usergame/:id", async (req, res) => {
+router.get("/usergame/:userId", async (req, res) => {
     //check for token and turn away non logged in users
     const token = req.headers?.authorization?.split(" ")[1];
     if (!token) {
-        return res.status(403).json({ msg: "you must be logged in to See Notes" });
+        return res.status(403).json({ msg: "you must be logged in to See UserGame" });
     }
 
     //get games by user id
     try {
         const tokenData = jwt.verify(token, process.env.JWT_SECRET);
-        const allUserGames = await User.findByPk(req.params.id, { 
+        const allUserGames = await User.findByPk(req.params.userId, { 
             include: [
                 {
                     model: UserGame,
-                    where: {
-                        UserId: req.params.id
-                    },
-                    include: [Game, Platform],
+                    include: [
+                        {model:Game,  attributes:{exclude:["updatedAt", "createdAt"]}}, 
+                        {model:Platform, attributes:{exclude:["createdAt", "updatedAt"]}}
+                    ],
+                    attributes:{exclude:["updatedAt", "UserId", "GameId"]}
                 }
-            ] 
+            ],
+            attributes:["id", "username"]
         });
 
         //verify user exists and req,params match logged in user
         if (!allUserGames) {
             return res.status(404).json({ msg: "no such User!" });
         }
-        if (allUserGames.id !== tokenData.id) {
-            return res.status(403).json({ msg: "you can only find games of the logged in User!" });
-        } else {
-            res.json(allUserGames);
-        }
+
+        res.json(allUserGames);
+        
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: "Error getting your games!" });
     }
 });
 
+// Edit UserGame by Id
+router.put("/usergame/:userGameId", async (req, res) => {
+    //check for token and turn away non logged in users
+    const token = req.headers?.authorization?.split(" ")[1];
+    if (!token) {
+        return res.status(403).json({ msg: "you must be logged in to Edit UserGame" });
+    }
+    try {
+        const tokenData = jwt.verify(token, process.env.JWT_SECRET);
+        const userGameData = await UserGame.findByPk(req.params.userGameId)
+
+        if (!userGameData) {
+            return res.status(404).json({ message: "UserGame Edit - Record doesn't exist!" })
+        } 
+
+        if (userGameData.UserId != tokenData.id) {
+            return res.status(404).json({ message: "You can only edit a UserGame you own!" })
+        } 
+
+        const updatedUserGame = await userGameData.update({
+            favorite: req.body.favorite,
+            lookingForMore: req.body.lookingForMore,
+            content: req.body.content,
+            replay: req.body.replay,
+            value: req.body.value,
+            GameId: req.body.GameId
+        })
+
+        const allPlatforms = await Platform.findAll()
+
+        allPlatforms.forEach(async platform => {
+            const removePlatform = await userGameData.removePlatform(platform.id);
+        })
+
+
+        req.body.platforms.forEach(async platformId => {
+            const addPlatform = await userGameData.addPlatform(platformId);
+        })
+
+        return res.json({message: "UserGame updated!"})    
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error editing record!" });
+    }
+})
+
+
+//DELETE a record
+router.delete("/usergame/:userGameId", async (req, res) => {
+     //check for token and turn away non logged in users
+     const token = req.headers?.authorization?.split(" ")[1];
+     if (!token) {
+         return res.status(403).json({ msg: "you must be logged in to Delete Notes" });
+     }
+    try {
+        const tokenData = jwt.verify(token, process.env.JWT_SECRET);
+        const userGameData = await UserGame.findByPk(req.params.userGameId)
+
+        if (!userGameData) {
+            return res.status(404).json({ message: "UserGame Delete - Record doesn't exist!" })
+        } 
+
+        if (userGameData.UserId != tokenData.id) {
+            return res.status(404).json({ message: "You can only delete a UserGame you own!" })
+        } 
+
+        const deletedData = await userGameData.destroy()
+
+        return res.json({message:"UserGame Deleted"})
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error deleting record!" });
+    }
+})
+
+// -------------------------------------------------------------------------------
+// Game seeding
+// -------------------------------------------------------------------------------
 
 router.get("/rawg/create", async (req, res) => {
     try {
@@ -147,44 +270,5 @@ const writeFile = (data) => {
 
     return;
 }
-
-//GET one record by id
-router.get("/:id", async (req, res) => {
-    try {
-        const results = await Game.findByPk(req.params.id);
-
-        if (results) {
-            return res.json(results);
-        } else {
-            res.status(404).json({
-                message: "No record exists!"
-            })
-        }
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Error getting data - Couldn't find game" })
-    }
-})
-
-//DELETE a record
-//TODO: complete this 
-router.delete("/:id", async (req, res) => {
-    try {
-        const results = await Game.destroy({
-            where: {
-                id: req.params.id
-            }
-        })
-
-        if (results) {
-            return res.json(results)
-        } else {
-            return res.status(404).json({ message: "Game Delete - Record doesn't exist!" })
-        }
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Error deleting record!" });
-    }
-})
 
 module.exports = router;
