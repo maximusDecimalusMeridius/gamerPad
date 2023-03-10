@@ -42,7 +42,7 @@ router.get("/isValidToken", (req, res) => {
 //GET one record by id
 router.get("/:id", async (req, res) => {
     try {
-        const results = await User.findByPk(req.params.id);
+        const results = await User.findByPk(req.params.id,{include:{model:User, as: 'Friends', foreignKey: 'FriendId', attributes:["id", "username"]} });
 
         if (results) {
             return res.json(results);

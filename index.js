@@ -17,6 +17,7 @@ const PORT = process.env.PORT || 3001;
 const { Account, Game, Note, Platform, User, UserFriend, UserGame } = require("./models");
 
 //use express methods to interpret JSON objects
+//middleware to append the response headers
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use((req, res, next) => {
