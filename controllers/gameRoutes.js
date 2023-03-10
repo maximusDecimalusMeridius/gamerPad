@@ -1,18 +1,152 @@
 //loop in dependencies
 const express = require("express");
 const router = express.Router();
-const Game = require("../models/Game");
+const { Game, User, UserGame, Platform, Account } = require("../models");
+const jwt = require("jsonwebtoken");
+const fs = require(`fs`);
+const dataArray = [];
 
 //GET all records
 router.get("/", async (req, res) => {
     try {
-        const results = await Game.findAll({});
+        const results = await Game.findAll();
         res.json(results);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: "Error getting all Games!" })
+        res.status(500).json({ message: "Error getting all games!" });
     }
-})
+});
+
+router.post("/usergame", async (req, res) => {
+    const token = req.headers?.authorization?.split(" ")[1];
+    if (!token) {
+        return res.status(403).json({ msg: "you must be logged in to See Notes" });
+    }
+    const tokenData = jwt.verify(token, process.env.JWT_SECRET);
+
+    try {
+        const newUserGame = await UserGame.create({
+            favorite: req.body.favorite,
+            lookingForMore: req.body.lookingForMore,
+            content: req.body.content,
+            replay: req.body.replay,
+            value: req.body.value,
+            UserId: tokenData.id,
+            GameId: req.body.GameId
+        });
+
+        req.body.platforms.forEach(async platform  =>{
+            const addPlatform = await newUserGame.addPlatform(platform);
+        });
+
+        res.json({msg:'usergame created, and platforms  added'});
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Error adding your game!" });
+    }
+});
+
+
+
+//route to get a users userGames
+router.get("/usergame/:id", async (req, res) => {
+    //check for token and turn away non logged in users
+    const token = req.headers?.authorization?.split(" ")[1];
+    if (!token) {
+        return res.status(403).json({ msg: "you must be logged in to See Notes" });
+    }
+
+    //get games by user id
+    try {
+        const tokenData = jwt.verify(token, process.env.JWT_SECRET);
+        const allUserGames = await User.findByPk(req.params.id, { 
+            include: [
+                {
+                    model: UserGame,
+                    where: {
+                        UserId: req.params.id
+                    },
+                    include: [Game, Platform],
+                }
+            ] 
+        });
+
+        //verify user exists and req,params match logged in user
+        if (!allUserGames) {
+            return res.status(404).json({ msg: "no such User!" });
+        }
+        if (allUserGames.id !== tokenData.id) {
+            return res.status(403).json({ msg: "you can only find games of the logged in User!" });
+        } else {
+            res.json(allUserGames);
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Error getting your games!" });
+    }
+});
+
+
+router.get("/rawg/create", async (req, res) => {
+    try {
+        const jsonRaw = fs.readFileSync('./db/apiData/rawgDataJSON.json', 'utf8', (err) =>
+            err ? console.error(err) : console.log('Success!'));
+        const newJson = await JSON.parse(jsonRaw);
+        let gamesArray = [];
+        newJson.forEach(array => {
+            gamesArray = gamesArray.concat(array.results);
+        });
+
+        const gamesObjs = gamesArray.map(game => {
+            return (
+                {
+                    title: game.name,
+                    releaseDate: game.released,
+                }
+            )
+        })
+        const makeGames = await Game.bulkCreate(gamesObjs)
+        fs.appendFileSync('./db/apiData/ourGameData.json', JSON.stringify(gamesObjs), function (err, data) {
+            if (err) {
+                return console.log(err);
+            } else {
+                console.log(data);
+                return res.json(data);
+            }
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Error making games!" })
+    }
+});
+
+//fetch api data from rawg
+router.get("/rawg/:page", async (req, res) => {
+    try {
+        //fetch game data from rawg
+        const rawgDataRaw = await fetch(`https://api.rawg.io/api/games?key=${`3cd34fbf61e14893a8511b086b8adee5`}&page=${req.params.page}&page_size=40`);
+        const rawgData = await rawgDataRaw.json();
+
+        dataArray.push(rawgData);
+
+        console.log(req.params.page);
+        if (req.params.page >= 3) {
+            writeFile(dataArray);
+        }
+        res.json({ msg: `wtf` });
+        return;
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Error fetching games!" })
+    }
+});
+
+const writeFile = (data) => {
+    fs.appendFileSync('./db/apiData/rawgDataJSON.json', JSON.stringify(data), (err) =>
+        err ? console.error(err) : console.log('Success!'));
+
+    return;
+}
 
 //GET one record by id
 router.get("/:id", async (req, res) => {
@@ -28,51 +162,12 @@ router.get("/:id", async (req, res) => {
         }
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: "Error getting data - couldn't find Game" })
-    }
-})
-
-//POST a new record
-//TODO: Add a signed token
-router.post("/", async (req, res) => {
-    try {
-        const result = await Game.create({
-            //TODO: Add Game attributes
-            Thing1: "Object property"
-        })
-
-        res.json(result);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ msg: 'Error creating new Game' })
-    }
-})
-
-//UPDATE a record
-//TODO: Check for token
-router.put("/:id", async (req, res) => {
-    try {
-        const result = await Game.update({
-            //TODO: Add Game attributes
-            Thing1: "Object property"
-        }, {
-            where: {
-                id: req.params.id
-            }
-        })
-
-        if (result[0]) {
-            return res.json(result);
-        } else {
-            return res.status(404).json({ message: "Record doesn't exist!" });
-        }
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Error updating record!" })
+        res.status(500).json({ message: "Error getting data - Couldn't find game" })
     }
 })
 
 //DELETE a record
+//TODO: complete this 
 router.delete("/:id", async (req, res) => {
     try {
         const results = await Game.destroy({

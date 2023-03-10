@@ -5,6 +5,7 @@ const app = express();
 const path = require('path');
 require("dotenv").config();
 const allRoutes = require("./controllers");
+const cors = require("cors")
 
 //define sequelize connection in /config/connection
 const sequelize = require('./config/connection');
