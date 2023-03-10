@@ -26,31 +26,12 @@ Note.belongsTo(User, { as: "Owner", foreignKey: "SharedId"})
 Account.hasOne(User);
 User.hasMany(Account);
 
-User.hasMany(UserGame);
-Account.hasMany(UserGame);
-Platform.hasMany(UserGame);
+//UserGame Associations
+User.hasMany(UserGame)
 UserGame.belongsTo(User);
-UserGame.belongsTo(Account);
-UserGame.belongsTo(Platform);
-// //User and Platform
-// User.belongsToMany(Platform, { through: UserGame });
-// Platform.belongsToMany(User, { through: UserGame });
-
-// //Account to Game
-// Account.belongsToMany(Game, { through: UserGame });
-// Game.belongsToMany(Account, { through: UserGame });
-
-// //Account to Platform relation
-// Account.belongsToMany(Platform, { through: UserGame });
-// Platform.belongsToMany(Account, { through: UserGame });
-
-// //Game to User
-// Game.belongsToMany(User, { through: UserGame});
-// User.belongsToMany(Game, { through: UserGame });
-
-// //Game to platform
-Game.belongsToMany(Platform, { through: UserGame });
-Platform.belongsToMany(Game, { through: UserGame });
+Game.hasOne(UserGame);
+UserGame.belongsToMany(Platform, {through: "UserGamePlatform"});
+Platform.belongsToMany(UserGame, {through: "UserGamePlatform"});
 
 module.exports = {
     User,

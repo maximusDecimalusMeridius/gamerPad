@@ -21,20 +21,20 @@ const seedAll = async () => {
     await seedAccounts();
     console.log("\n----- ACCOUNTS SEEDED -----\n");
 
-    await seedGame();
-    console.log("\n----- GAMES SEEDED -----\n");
-
     await seedNote();
     console.log("\n----- NOTES SEEDED -----\n");
 
     // await seedUserFriend();
     // console.log("\n----- USERFRIENDS SEEDED -----\n");
 
-    await seedPlatform();
-    console.log("\n----- PLATFORMS SEEDED -----\n");
+    await seedGame();
+    console.log("\n----- GAMES SEEDED -----\n");
 
     await seedUserGame();
     console.log("\n----- USERGAMES SEEDED -----\n");
+
+    // await seedPlatform();
+    // console.log("\n----- PLATFORMS SEEDED -----\n");
 
     process.exit(0);
 }

@@ -11,7 +11,7 @@ const cors = require("cors")
 const sequelize = require('./config/connection');
 
 //Set PORT to process.env variable on Heroku or default to port 3000
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 //build tables when index.js is run
 const { Account, Game, Note, Platform, User, UserFriend, UserGame } = require("./models");
@@ -19,7 +19,12 @@ const { Account, Game, Note, Platform, User, UserFriend, UserGame } = require(".
 //use express methods to interpret JSON objects
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+app.use((req, res, next) => {
+    res.append('Access-Control-Allow-Origin', ['*']);
+    res.append('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+    res.append('Access-Control-Allow-Headers', 'Content-Type');
+    next();
+});
 
 //references API routes in /controllers for each model
 app.use('/api', allRoutes);

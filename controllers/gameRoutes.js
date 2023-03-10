@@ -1,7 +1,7 @@
 //loop in dependencies
 const express = require("express");
 const router = express.Router();
-const { Game, User, UserGame } = require("../models");
+const { Game, User, UserGame, Platform, Account } = require("../models");
 const jwt = require("jsonwebtoken");
 const fs = require(`fs`);
 const dataArray = [];
@@ -17,8 +17,32 @@ router.get("/", async (req, res) => {
     }
 });
 
+router.post("/usergame", async (req, res) => {
+    const token = req.headers?.authorization?.split(" ")[1];
+    if (!token) {
+        return res.status(403).json({ msg: "you must be logged in to See Notes" });
+    }
+    const tokenData = jwt.verify(token, process.env.JWT_SECRET);
+
+    try {
+        const newUserGame = await UserGame.create({
+            favorite: req.body.favorite,
+            lookingForMore: req.body.lookingForMore,
+            content: req.body.content,
+            replay: req.body.replay,
+            UserId: tokenData.username,
+            GameId: req.body.GameId
+        });
+
+        res.json(newUserGame);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Error getting your games!" });
+    }
+})
+
 //route to get a users userGames
-router.get("/user/:id", async (req, res) => {
+router.get("/usergame/:id", async (req, res) => {
     //check for token and turn away non logged in users
     const token = req.headers?.authorization?.split(" ")[1];
     if (!token) {
@@ -28,7 +52,17 @@ router.get("/user/:id", async (req, res) => {
     //get games by user id
     try {
         const tokenData = jwt.verify(token, process.env.JWT_SECRET);
-        const allUserGames = await User.findByPk(req.params.id, { include: [Game] });
+        const allUserGames = await User.findByPk(req.params.id, { 
+            include: [
+                {
+                    model: UserGame,
+                    where: {
+                        UserId: req.params.id
+                    },
+                    include: [Game, Platform],
+                }
+            ] 
+        });
 
         //verify user exists and req,params match logged in user
         if (!allUserGames) {
@@ -43,7 +77,8 @@ router.get("/user/:id", async (req, res) => {
         console.error(err);
         res.status(500).json({ message: "Error getting your games!" });
     }
-})
+});
+
 
 router.get("/rawg/create", async (req, res) => {
     try {

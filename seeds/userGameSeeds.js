@@ -1,18 +1,37 @@
 const {UserGame} = require('../models');
-const userGameData = [
-    {
-        favorite: true,
-        lookingForMore: true,
-        content: 10,
-        value: 10,
-        replay: 100,
-        UserId: 1,
-        AccountId: 1,
-        PlatformId: 1,
-        GameId: 1,
-    }
-]
+const Platform = require('./platformSeeds');
 
-const seedUserGame = () => UserGame.bulkCreate(userGameData);
+const UserGamePlatform = async () => {
+    const platformData = Platform;
+    const userGameData = await UserGame.bulkCreate([
+        {
+            favorite: true,
+            lookingForMore: true,
+            content: 10,
+            value: 10,
+            replay: 100,
+            UserId: 1,
+            GameId: 1,
+        },
+        {
+            favorite: true,
+            lookingForMore: true,
+            content: 10,
+            value: 10,
+            replay: 100,
+            UserId: 2,
+            GameId: 2,
+        },
+        {
+            favorite: true,
+            lookingForMore: true,
+            content: 10,
+            value: 10,
+            replay: 100,
+            UserId: 1,
+            GameId: 2,
+        }
+    ])
 
-module.exports = seedUserGame;
+}
+module.exports = UserGamePlatform;
