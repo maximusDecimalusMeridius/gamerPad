@@ -30,16 +30,23 @@ router.post("/usergame", async (req, res) => {
             lookingForMore: req.body.lookingForMore,
             content: req.body.content,
             replay: req.body.replay,
-            UserId: tokenData.username,
+            value: req.body.value,
+            UserId: tokenData.id,
             GameId: req.body.GameId
         });
 
-        res.json(newUserGame);
+        req.body.platforms.forEach(async platform  =>{
+            const addPlatform = await newUserGame.addPlatform(platform);
+        });
+
+        res.json({msg:'usergame created, and platforms  added'});
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: "Error getting your games!" });
+        res.status(500).json({ message: "Error adding your game!" });
     }
-})
+});
+
+
 
 //route to get a users userGames
 router.get("/usergame/:id", async (req, res) => {

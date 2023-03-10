@@ -2,8 +2,7 @@
 const seedAccounts = require('./accountSeeds');
 const seedGame = require('./gameSeeds');
 const seedNote = require('./noteSeeds');
-const seedPlatform = require('./platformSeeds');
-const seedUserGame = require('./userGameSeeds');
+const UserGamePlatform = require('./userGameSeeds');
 const seedUser = require('./userSeeds');
 
 
@@ -23,15 +22,12 @@ const seedAll = async () => {
     await seedNote();
     console.log("\n----- NOTES SEEDED -----\n");
 
-    // await seedUserFriend();
-    // console.log("\n----- USERFRIENDS SEEDED -----\n");
-
     await seedGame();
     console.log("\n----- GAMES SEEDED -----\n");
-
-    await seedUserGame();
+    
+    await UserGamePlatform();
     console.log("\n----- USERGAMES SEEDED -----\n");
-
+    
     // await seedPlatform();
     // console.log("\n----- PLATFORMS SEEDED -----\n");
 
