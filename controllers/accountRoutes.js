@@ -15,7 +15,7 @@ router.get("/", async (req, res) => {
     }
 })
 
-//GET accounts by user id
+//GET accounts by current user id
 router.get("/currentUserAccounts", async (req, res) => {
     const token = req.headers?.authorization?.split(" ")[1];
     if (!token) {
@@ -30,6 +30,29 @@ router.get("/currentUserAccounts", async (req, res) => {
         } else {
             res.status(404).json({
                 message: "No record exists!"
+            })
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error getting data - couldn't find Account" })
+    }
+})
+
+//GET accounts by user id
+router.get("/userAccounts/:id", async (req, res) => {
+    const token = req.headers?.authorization?.split(" ")[1];
+    if (!token) {
+        return res.status(403).json({ msg: "you must be logged in to get accounts by user id!" });
+    }
+    try {
+        const tokenData = jwt.verify(token, process.env.JWT_SECRET);
+        const userAccountData = await User.findByPk(req.params.id, {include:[{model:Account}], attributes:["id", "username"]});
+
+        if (userAccountData) {
+            return res.json(userAccountData);
+        } else {
+            res.status(404).json({
+                message: "No data exists!"
             })
         }
     } catch (error) {
