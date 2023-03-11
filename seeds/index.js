@@ -3,7 +3,8 @@ const seedAccounts = require('./accountSeeds');
 const seedGame = require('./gameSeeds');
 const seedNote = require('./noteSeeds');
 const UserGamePlatform = require('./userGameSeeds');
-const seedUser = require('./userSeeds');
+const seedUser = require('./userSeeds'); 
+const seedPlatforms = require('./platformSeeds');
 
 
 //bring in sequalize
@@ -24,6 +25,9 @@ const seedAll = async () => {
 
     await seedGame();
     console.log("\n----- GAMES SEEDED -----\n");
+
+    await seedPlatforms();
+    console.log("\n----- PLATFORMS SEEDED -----\n");
     
     await UserGamePlatform();
     console.log("\n----- USERGAMES SEEDED -----\n");
