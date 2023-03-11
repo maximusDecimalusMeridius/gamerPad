@@ -2,7 +2,6 @@
 //create app, create handlebars view engine, define allRoutes as index.js in /controllers
 const express = require("express");
 const app = express();
-const path = require('path');
 require("dotenv").config();
 const allRoutes = require("./controllers");
 const cors = require('cors')
@@ -20,14 +19,8 @@ const { Account, Game, Note, Platform, User, UserFriend, UserGame } = require(".
 //middleware to append the response headers
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-// app.use((req, res, next) => {
-//     res.append('Access-Control-Allow-Origin', ['*']);
-//     res.append('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-//     res.append('Access-Control-Allow-Headers', 'Content-Type');
-//     next();
-// });
-app.use(cors())
-app.options('*', cors()) 
+app.use(cors());
+app.options('*', cors());
 
 //references API routes in /controllers for each model
 app.use('/api', allRoutes);

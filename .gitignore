@@ -1,4 +1,5 @@
 # Logs
+.apiSeeds/
 .vscode/
 logs
 *.log
