@@ -5,19 +5,29 @@ const app = express();
 const path = require('path');
 require("dotenv").config();
 const allRoutes = require("./controllers");
+const cors = require('cors')
 
 //define sequelize connection in /config/connection
 const sequelize = require('./config/connection');
 
 //Set PORT to process.env variable on Heroku or default to port 3000
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 //build tables when index.js is run
 const { Account, Game, Note, Platform, User, UserFriend, UserGame } = require("./models");
 
 //use express methods to interpret JSON objects
+//middleware to append the response headers
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+// app.use((req, res, next) => {
+//     res.append('Access-Control-Allow-Origin', ['*']);
+//     res.append('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+//     res.append('Access-Control-Allow-Headers', 'Content-Type');
+//     next();
+// });
+app.use(cors())
+app.options('*', cors()) 
 
 //references API routes in /controllers for each model
 app.use('/api', allRoutes);
@@ -29,6 +39,8 @@ app.use('/api', allRoutes);
 app.get("/*", (req, res) => {
     res.send("Oops we couldn't find what you're looking for!");
 })
+
+
 
 //sync sequelize, dropping and recreating the db each time
 //launch server on PORT
