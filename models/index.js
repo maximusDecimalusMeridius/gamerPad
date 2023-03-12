@@ -31,6 +31,7 @@ User.hasMany(UserGame)
 UserGame.belongsTo(User);
 //UserGame.hasOne(Game);
 UserGame.belongsTo(Game);
+Game.hasMany(UserGame)
 UserGame.belongsToMany(Platform, {through: "UserGamePlatform"});
 Platform.belongsToMany(UserGame, {through: "UserGamePlatform"});
 

@@ -1,6 +1,6 @@
 //loop in dependencies
 const express = require("express");
-const { User } = require("../models");
+const { User, UserGame, Game } = require("../models");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
 
@@ -76,7 +76,21 @@ router.get("/currentUserFriends", async (req, res) => {
     }
     try {
         const tokenData = jwt.verify(token, process.env.JWT_SECRET);
-        const results = await User.findByPk(tokenData.id,{include:{model:User, as: 'Friends', foreignKey: 'FriendId', attributes:["id", "username", "profilePicture"]}, attributes:["id", "username", "profilePicture"] });
+        const results = await User.findByPk(tokenData.id,{include:
+            {
+                model:User, 
+                as: 'Friends', 
+                foreignKey: 'FriendId', 
+                attributes:["id", "username", "profilePicture"],
+                include:{
+                    model:UserGame, 
+                    where:{favorite:true}, 
+                    limit:3,
+                    attributes:["GameId"],
+                    include:{model:Game, attributes:["id", "title", "publisher", "releaseDate"]}
+                }
+            }, 
+            attributes:["id", "username", "profilePicture"] });
 
         if (results) {
             return res.json(results);
