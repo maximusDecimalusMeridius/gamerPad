@@ -2,7 +2,6 @@ const {Game} = require('../models');
 const fs = require('fs');
 
 const pulledGamesRaw = JSON.parse(fs.readFileSync('./db/apiData/devGameData.json'));
-//const pulledGames = pulledGamesRaw
 
 const forcedGameSeeds = [
     {
