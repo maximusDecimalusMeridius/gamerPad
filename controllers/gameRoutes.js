@@ -74,26 +74,8 @@ router.post("/usergame", async (req, res) => {
     }
 });
 
-//GET one record by id
-router.get("/:id", async (req, res) => {
-    try {
-        const results = await Game.findByPk(req.params.id);
-
-        if (results) {
-            return res.json(results);
-        } else {
-            res.status(404).json({
-                message: "No record exists!"
-            })
-        }
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Error getting data - Couldn't find game" })
-    }
-})
-
 //route to get a users userGames
-router.get("/usergame/:userId", async (req, res) => {
+router.get("/usergame", async (req, res) => {
     //check for token and turn away non logged in users
     const token = req.headers?.authorization?.split(" ")[1];
     if (!token) {
@@ -103,7 +85,8 @@ router.get("/usergame/:userId", async (req, res) => {
     //get games by user id
     try {
         const tokenData = jwt.verify(token, process.env.JWT_SECRET);
-        const allUserGames = await User.findByPk(req.params.userId, { 
+        console.log(tokenData)
+        const allUserGames = await User.findByPk(tokenData.id, { 
             include: [
                 {
                     model: UserGame,
@@ -129,6 +112,24 @@ router.get("/usergame/:userId", async (req, res) => {
         res.status(500).json({ message: "Error getting your games!" });
     }
 });
+
+//GET one record by id
+router.get("/:id", async (req, res) => {
+    try {
+        const results = await Game.findByPk(req.params.id);
+
+        if (results) {
+            return res.json(results);
+        } else {
+            res.status(404).json({
+                message: "No record exists!"
+            })
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error getting data - Couldn't find game" })
+    }
+})
 
 // Edit UserGame by Id
 router.put("/usergame/:userGameId", async (req, res) => {

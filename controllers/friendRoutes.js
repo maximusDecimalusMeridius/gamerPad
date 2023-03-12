@@ -76,7 +76,7 @@ router.get("/currentUserFriends", async (req, res) => {
     }
     try {
         const tokenData = jwt.verify(token, process.env.JWT_SECRET);
-        const results = await User.findByPk(tokenData.id,{include:{model:User, as: 'Friends', foreignKey: 'FriendId', attributes:["id", "username"]}, attributes:["id", "username"] });
+        const results = await User.findByPk(tokenData.id,{include:{model:User, as: 'Friends', foreignKey: 'FriendId', attributes:["id", "username", "profilePicture"]}, attributes:["id", "username", "profilePicture"] });
 
         if (results) {
             return res.json(results);

@@ -4,6 +4,7 @@ const express = require("express");
 const app = express();
 require("dotenv").config();
 const allRoutes = require("./controllers");
+const cors = require('cors')
 
 //define sequelize connection in /config/connection
 const sequelize = require('./config/connection');
@@ -18,12 +19,8 @@ const { Account, Game, Note, Platform, User, UserFriend, UserGame } = require(".
 //middleware to append the response headers
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use((req, res, next) => {
-    res.append('Access-Control-Allow-Origin', ['*']);
-    res.append('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-    res.append('Access-Control-Allow-Headers', 'Content-Type');
-    next();
-});
+app.use(cors());
+app.options('*', cors());
 
 //references API routes in /controllers for each model
 app.use('/api', allRoutes);
@@ -35,6 +32,8 @@ app.use('/api', allRoutes);
 app.get("/*", (req, res) => {
     res.send("Oops we couldn't find what you're looking for!");
 })
+
+
 
 //sync sequelize, dropping and recreating the db each time
 //launch server on PORT
