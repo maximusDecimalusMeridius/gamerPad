@@ -10,7 +10,8 @@ User.init({
         allowNull: false,
         unique: true,
         validate: {
-            isAlphanumeric: true
+            isAlphanumeric: true,
+            len: [3,20]
         }
     },
     email: {
