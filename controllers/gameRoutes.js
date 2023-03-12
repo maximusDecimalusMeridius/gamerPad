@@ -18,7 +18,7 @@ router.get("/", async (req, res) => {
     }
 });
 
-// GET all usergame info
+// GET all usergame players and friends
 router.get("/usergame/allUserGames", async (req, res) => {
     const token = req.headers?.authorization?.split(" ")[1];
     if (!token) {
@@ -28,7 +28,7 @@ router.get("/usergame/allUserGames", async (req, res) => {
         const tokenData = jwt.verify(token, process.env.JWT_SECRET);
         const userGamesData = await Game.findAll({
             include:[
-                {model:UserGame}
+                {model:UserGame, include:[User]}
             ]
         });
         const userFriends = await User.findByPk(tokenData.id, {include:
@@ -40,15 +40,22 @@ router.get("/usergame/allUserGames", async (req, res) => {
         })
         const infoArr = []
         const friendArr = []
+
         userFriends.Friends.forEach(friend => {
             friendArr.push(friend.id)
         })
         userGamesData.forEach(game => {
             let friends = 0
-
+            const listOfFriends = []
             game.UserGames.forEach(userGame => {
                 if(friendArr.includes(userGame.UserId)){
                     friends++
+                    const friend = {
+                        id:userGame.User.id,
+                        username:userGame.User.username
+                    }
+
+                    listOfFriends.push(friend)
                 }
             })
 
@@ -56,8 +63,10 @@ router.get("/usergame/allUserGames", async (req, res) => {
                 id:game.id,
                 title:game.title,
                 publisher:game.publisher,
+                releaseDate:game.releaseDate,
                 allPlayers:game.UserGames.length,
-                friendsWhoPlay:friends
+                friendsWhoPlay:friends,
+                listOfFriends:listOfFriends
             }
             if(game.UserGames.length>0){
                 infoArr.push(gameData)

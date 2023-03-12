@@ -1,6 +1,6 @@
 //loop in dependencies
 const express = require("express");
-const { User, UserGame, Game } = require("../models");
+const { User, UserGame, Game, Platform, Account } = require("../models");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
 
@@ -82,13 +82,17 @@ router.get("/currentUserFriends", async (req, res) => {
                 as: 'Friends', 
                 foreignKey: 'FriendId', 
                 attributes:["id", "username", "profilePicture"],
-                include:{
-                    model:UserGame, 
-                    where:{favorite:true}, 
-                    limit:3,
-                    attributes:["GameId"],
-                    include:{model:Game, attributes:["id", "title", "publisher", "releaseDate"]}
-                }
+                include:[
+                    {model:UserGame, 
+                    // where:{favorite:true}, 
+                    // limit:3,
+                    attributes:["GameId", "favorite", "lookingForMore", "content", "value", "replay"],
+                    include:[
+                        {model:Game, attributes:["id", "title", "publisher", "releaseDate", ]},
+                        {model:Platform, attributes:["id", "platform"]}
+                    ]},
+                    {model:Account, attributes:["id", "account", "type", "username", "gamerTag"]}
+                ]
             }, 
             attributes:["id", "username", "profilePicture"] });
 

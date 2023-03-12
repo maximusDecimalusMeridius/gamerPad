@@ -1,6 +1,6 @@
 //loop in dependencies
 const express = require("express");
-const {User,Note, UserGame} = require("../models");
+const {User,Note, UserGame, Account} = require("../models");
 const router = express.Router();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -30,7 +30,7 @@ router.get("/currentUserInfo", async (req, res) => {
             include:[
             {model:User, as: 'Friends', foreignKey: 'FriendId'},
             {model:UserGame},
-            {model:Note, as: "WritenNotes", foreignKey: "AuthorId"},
+            {model:Note, as: "WrittenNotes", foreignKey: "AuthorId"},
             {model:Note, as: "SharedNotes", foreignKey: "SharedId"}
             ]
         });
@@ -182,7 +182,14 @@ router.post("/login", async (req, res) => {
         const foundUser = await User.findOne({
             where: {
                 [Op.or]: [{ username: req.body.login }, [{ email: req.body.login }]]
-            }
+            },
+            include: [
+                {model:User, 
+                as: 'Friends', 
+                foreignKey: 'FriendId', 
+                attributes:["id", "username", "profilePicture"]},
+                {model:Account}
+            ]
         })
 
         if (!foundUser) {
