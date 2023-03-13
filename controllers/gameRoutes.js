@@ -282,6 +282,8 @@ router.get("/rawg/create", async (req, res) => {
             gamesArray = gamesArray.concat(array.results);
         });
 
+        res.json(gamesArray);
+
         const gamesObjs = gamesArray.map(game => {
             return (
                 {
@@ -290,15 +292,15 @@ router.get("/rawg/create", async (req, res) => {
                 }
             )
         })
-        const makeGames = await Game.bulkCreate(gamesObjs)
-        fs.appendFileSync('./db/apiData/ourGameData.json', JSON.stringify(gamesObjs), function (err, data) {
-            if (err) {
-                return console.log(err);
-            } else {
-                console.log(data);
-                return res.json(data);
-            }
-        });
+        // const makeGames = await Game.bulkCreate(gamesObjs)
+        // fs.appendFileSync('./db/apiData/ourGameData.json', JSON.stringify(gamesObjs), function (err, data) {
+        //     if (err) {
+        //         return console.log(err);
+        //     } else {
+        //         console.log(data);
+        //         return res.json(data);
+        //     }
+        // });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: "Error making games!" })
