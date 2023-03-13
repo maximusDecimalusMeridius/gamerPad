@@ -1,4 +1,6 @@
 # Logs
+.apiSeeds/
+.vscode/
 logs
 *.log
 npm-debug.log*
