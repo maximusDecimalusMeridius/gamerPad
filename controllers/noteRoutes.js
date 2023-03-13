@@ -42,7 +42,7 @@ router.get("/currentUserNotes", async (req, res) => {
 })
 
 // Share note with User
-router.post("/:noteId/shareWith/:userId", async (req, res) => {
+router.post("/:noteId/shareWith/:username", async (req, res) => {
     const token = req.headers?.authorization?.split(" ")[1];
     if (!token) {
         return res
@@ -56,6 +56,12 @@ router.post("/:noteId/shareWith/:userId", async (req, res) => {
         if(tokenData.id!=noteData.AuthorId){
             return res.status(403).json({message: "You can only share a note that you wrote"})
         }
+
+        const sharedUser = await User.findOne({where:{username:req.params.username}})
+        console.log(sharedUser)
+        if(!sharedUser){
+            return res.status(404).json({msg:"No such user"})
+        }
     
     if(!noteData){
         res.status(404).json({
@@ -67,7 +73,7 @@ router.post("/:noteId/shareWith/:userId", async (req, res) => {
                 textContent:noteData.textContent,
                 color:noteData.color,
                 author:noteData.author,
-                SharedId:req.params.userId,
+                SharedId:sharedUser.id,
                 isShared:true
             })
     
@@ -141,6 +147,7 @@ router.put("/:id", async (req, res) => {
         } else {
             return res.status(404).json({ message: "Record doesn't exist!" });
         }
+        
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Error updating record!" })

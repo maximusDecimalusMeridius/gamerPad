@@ -12,8 +12,8 @@ router.post("/addFriend", async (req, res) => {
     }
     try {
         const tokenData = jwt.verify(token, process.env.JWT_SECRET);
-        const userData = await User.findByPk(tokenData.id)
-        const friendData = await User.findByPk(req.body.FriendId)
+        const userData = await User.findByPk(tokenData.id);
+        const friendData = await User.findByPk(req.body.FriendId);
         
         if (!userData) {
             return res.status(404).json({ message: "token user wrong" });
@@ -30,7 +30,7 @@ router.post("/addFriend", async (req, res) => {
         const addFriend1 = await userData.addUser(req.body.FriendId)
         const addFriend2 = await friendData.addUser(tokenData.id)
         
-        return res.json({msg:"Friend Added"})
+        return res.json({friendData})
 
     } catch (error) {
         console.error(error);
@@ -39,15 +39,15 @@ router.post("/addFriend", async (req, res) => {
 })
 
 // TODO: Remove friend route
-router.delete("/removeFriend/:friendId", async (req, res) => {
+router.delete("/:friendId", async (req, res) => {
     const token = req.headers?.authorization?.split(" ")[1];
     if (!token) {
         return res.status(403).json({ msg: "you must be logged in to add a friend!" });
     }
     try {
         const tokenData = jwt.verify(token, process.env.JWT_SECRET);
-        const userData = await User.findByPk(tokenData.id)
-        const friendData = await User.findByPk(req.params.friendId)
+        const userData = await User.findByPk(tokenData.id);
+        const friendData = await User.findByPk(req.params.friendId);
         
         if (!userData) {
             return res.status(404).json({ message: "token user wrong" });
