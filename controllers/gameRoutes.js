@@ -5,6 +5,7 @@ const { Game, User, UserGame, Platform, Account, UserGamePlatform } = require(".
 const jwt = require("jsonwebtoken");
 const fs = require(`fs`);
 const dataArray = [];
+const sequelize = require('sequelize');
 
 //GET all records
 router.get("/", async (req, res) => {
@@ -14,6 +15,67 @@ router.get("/", async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Error getting all games!" });
+    }
+});
+
+// GET all usergame players and friends
+router.get("/usergame/allUserGames", async (req, res) => {
+    const token = req.headers?.authorization?.split(" ")[1];
+    if (!token) {
+        return res.status(403).json({ msg: "you must be logged in to add UserGame" });
+    }
+    try {
+        const tokenData = jwt.verify(token, process.env.JWT_SECRET);
+        const userGamesData = await Game.findAll({
+            include:[
+                {model:UserGame, include:[User]}
+            ]
+        });
+        const userFriends = await User.findByPk(tokenData.id, {include:
+            {
+                model:User, 
+                as: 'Friends', 
+                foreignKey: 'FriendId',
+            }
+        })
+        const infoArr = []
+        const friendArr = []
+
+        userFriends.Friends.forEach(friend => {
+            friendArr.push(friend.id)
+        })
+        userGamesData.forEach(game => {
+            let friends = 0
+            const listOfFriends = []
+            game.UserGames.forEach(userGame => {
+                if(friendArr.includes(userGame.UserId)){
+                    friends++
+                    const friend = {
+                        id:userGame.User.id,
+                        username:userGame.User.username
+                    }
+
+                    listOfFriends.push(friend)
+                }
+            })
+
+            const gameData = {
+                id:game.id,
+                title:game.title,
+                publisher:game.publisher,
+                releaseDate:game.releaseDate,
+                allPlayers:game.UserGames.length,
+                friendsWhoPlay:friends,
+                listOfFriends:listOfFriends
+            }
+            if(game.UserGames.length>0){
+                infoArr.push(gameData)
+            }
+        })
+        res.json(infoArr);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error getting all userGames!" });
     }
 });
 
@@ -50,9 +112,8 @@ router.post("/usergame", async (req, res) => {
     if (!token) {
         return res.status(403).json({ msg: "you must be logged in to add UserGame" });
     }
-    const tokenData = jwt.verify(token, process.env.JWT_SECRET);
-
     try {
+        const tokenData = jwt.verify(token, process.env.JWT_SECRET);
         const newUserGame = await UserGame.create({
             favorite: req.body.favorite,
             lookingForMore: req.body.lookingForMore,
@@ -74,7 +135,7 @@ router.post("/usergame", async (req, res) => {
     }
 });
 
-//route to get a users userGames
+//route to get current users userGames
 router.get("/usergame", async (req, res) => {
     //check for token and turn away non logged in users
     const token = req.headers?.authorization?.split(" ")[1];

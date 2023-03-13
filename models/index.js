@@ -15,7 +15,7 @@ User.belongsToMany(User, { through: "UserFriend", as: 'Users', foreignKey: 'User
 // User.belongsToMany(Note, {through:'UserNote'});
 
 //Note and User Author relation
-User.hasMany(Note, { as: "WritenNotes", foreignKey: "AuthorId"})
+User.hasMany(Note, { as: "WrittenNotes", foreignKey: "AuthorId"})
 Note.belongsTo(User, { as: "Author", foreignKey: "AuthorId"})
 
 //Shared Note and User relation
@@ -31,6 +31,7 @@ User.hasMany(UserGame)
 UserGame.belongsTo(User);
 //UserGame.hasOne(Game);
 UserGame.belongsTo(Game);
+Game.hasMany(UserGame)
 UserGame.belongsToMany(Platform, {through: "UserGamePlatform"});
 Platform.belongsToMany(UserGame, {through: "UserGamePlatform"});
 

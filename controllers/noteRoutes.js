@@ -24,7 +24,10 @@ router.get("/currentUserNotes", async (req, res) => {
     try {
         const tokenData = jwt.verify(token, process.env.JWT_SECRET);
 
-        const userData = await User.findByPk(tokenData.id,{include:[{model:Note, as: "WritenNotes", foreignKey: "AuthorId", attributes:["id","title", "textContent", "color", "isShared", "createdAt"]},{model:Note, as: "SharedNotes", foreignKey: "SharedId", attributes:["id","title", "textContent", "color", "author", "createdAt"]}], attributes:["id", "username"]});
+        const userData = await User.findByPk(tokenData.id,{include:[
+            {model:Note, as: "WrittenNotes", foreignKey: "AuthorId", attributes:["id","title", "textContent", "color", "isShared", "createdAt"]},
+            {model:Note, as: "SharedNotes", foreignKey: "SharedId", attributes:["id","title", "textContent", "color", "author", "createdAt"]}], 
+            attributes:["id", "username"]});
 
         if (userData) {
             return res.json(userData);

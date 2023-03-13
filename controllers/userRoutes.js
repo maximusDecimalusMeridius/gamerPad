@@ -1,10 +1,11 @@
 //loop in dependencies
 const express = require("express");
-const {User,Note} = require("../models");
+const {User,Note, UserGame, Account} = require("../models");
 const router = express.Router();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { Op } = require("sequelize");
+const sequelize = require('Sequelize');
 
 //GET all records
 router.get("/", async (req, res) => {
@@ -14,6 +15,36 @@ router.get("/", async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Error getting all users!" })
+    }
+})
+
+//GET one record by id
+router.get("/currentUserInfo", async (req, res) => {
+    const token = req.headers?.authorization?.split(" ")[1];
+    if (!token) {
+        return res.status(403).json({ msg: "you must be logged in to get current User Info!" });
+    }
+    try {
+        const tokenData = jwt.verify(token, process.env.JWT_SECRET);
+        const results = await User.findByPk(tokenData.id, {
+            include:[
+            {model:User, as: 'Friends', foreignKey: 'FriendId'},
+            {model:UserGame},
+            {model:Note, as: "WrittenNotes", foreignKey: "AuthorId"},
+            {model:Note, as: "SharedNotes", foreignKey: "SharedId"}
+            ]
+        });
+
+        if (results) {
+            return res.json(results);
+        } else {
+            res.status(404).json({
+                message: "No record exists!"
+            })
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error getting data - couldn't find user" });
     }
 })
 
@@ -151,7 +182,14 @@ router.post("/login", async (req, res) => {
         const foundUser = await User.findOne({
             where: {
                 [Op.or]: [{ username: req.body.login }, [{ email: req.body.login }]]
-            }
+            },
+            include: [
+                {model:User, 
+                as: 'Friends', 
+                foreignKey: 'FriendId', 
+                attributes:["id", "username", "profilePicture"]},
+                {model:Account}
+            ]
         })
 
         if (!foundUser) {
