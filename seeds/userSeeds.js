@@ -91,6 +91,15 @@ const seedUser = async () => {
             Theme: `light`,
             profilePicture: `http://placekitten.com/200/200`,
         },
+        {
+            username:`AliceMadness`,
+            email:`alice@madness.com`,
+            password:`Madne55!`,
+            lookingForFriends: true,
+            friendCode: `madHatter96`,
+            Theme: `light`,
+            profilePicture:`https://cdn.discordapp.com/attachments/1054153893795348523/1084927857899352205/myProfilePicture.png`
+        }
     ], {
         validate: true,
         individualHooks: true

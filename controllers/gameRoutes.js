@@ -5,7 +5,6 @@ const { Game, User, UserGame, Platform, Account, UserGamePlatform } = require(".
 const jwt = require("jsonwebtoken");
 const fs = require(`fs`);
 const dataArray = [];
-const sequelize = require('sequelize');
 
 //GET all records
 router.get("/", async (req, res) => {

@@ -5,7 +5,6 @@ const router = express.Router();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { Op } = require("sequelize");
-const sequelize = require('Sequelize');
 
 //GET all records
 router.get("/", async (req, res) => {
