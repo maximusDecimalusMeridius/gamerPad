@@ -5,7 +5,7 @@ const app = express();
 require("dotenv").config();
 const allRoutes = require("./controllers");
 const cors = require('cors');
-const path = require("path");
+// const path = require("path");
 
 //define sequelize connection in /config/connection
 const sequelize = require('./config/connection');
@@ -27,7 +27,7 @@ app.options('*', cors());
 app.use('/api', allRoutes);
 
 //use public as the base directory
-app.use(express.static(path.join(__dirname, 'public')));
+// app.use(express.static(path.join(__dirname, 'public')));
 
 //wildcard redirect
 app.get("/*", (req, res) => {
