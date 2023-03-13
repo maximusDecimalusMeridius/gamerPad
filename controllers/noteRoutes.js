@@ -56,8 +56,8 @@ router.post("/:noteId/shareWith/:username", async (req, res) => {
             return res.status(403).json({message: "You can only share a note that you wrote"})
         }
 
-        const sharedUser = User.findOne({where:{username:req.params.username}})
-
+        const sharedUser = await User.findOne({where:{username:req.params.username}})
+        console.log(sharedUser)
         if(!sharedUser){
             return res.status(404).json({msg:"No such user"})
         }
