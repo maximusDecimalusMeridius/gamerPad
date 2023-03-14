@@ -4,7 +4,7 @@ const router = express.Router();
 const { Game, User, UserGame, Platform, Account, UserGamePlatform } = require("../models");
 const jwt = require("jsonwebtoken");
 const fs = require(`fs`);
-//const sequelize = require('sequelize');
+
 
 //GET all records
 router.get("/", async (req, res) => {
