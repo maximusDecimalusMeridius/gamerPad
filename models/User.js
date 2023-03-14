@@ -24,7 +24,7 @@ User.init({
         allowNull: false,
         validate: {
             validatePassword: function (password) {
-                if (!(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,128}$/.test(password))) {
+                if (!(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[~!@#$%^&*+?:;])[A-Za-z\d~!@#$%^&*+?:;]{8,128}$/.test(password))) {
                     throw new Error('The password must contain at least 8 and maximum 128 characters including at least 1 uppercase, 1 lowercase, one number and one special character.');
                 }
             }
