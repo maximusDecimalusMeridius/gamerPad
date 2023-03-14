@@ -101,7 +101,7 @@ const makeNewSeedData = async () => {
                     {
                         title: game.name,
                         releaseDate: game.released,
-                        images: game.short_screenshots,
+                        images: game.short_screenshots[0].image,
                         // platforms: game.platforms,
                         // genres: game.genres,
                         // esrbRating: game.esrb_rating,
