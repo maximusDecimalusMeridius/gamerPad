@@ -13,6 +13,10 @@ Game.init({
         type: DataTypes.STRING,
         default: 'Unknown'
     },
+    images: {
+        type: DataTypes.STRING,
+        default: 'Unknown'
+    },
     //make this a standardized date format using dayjs
     releaseDate: {
         type: DataTypes.STRING,
