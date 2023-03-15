@@ -87,13 +87,25 @@ router.get("/:id", async (req, res) => {
     }
 })
 
+const adjectiveList = ['Funny', 'Silly', 'Smart', 'Nooby', 'Cranky', 'Sleepy', 'Happy', 'Sad', 'Grumpy', 'Hangry', 'Raging', 'little', 'Brave', 'Shiny', 'Pink', 'Purple', 'Blue', 'Red', 'Fast', 'Slow']
+
+const randomizeFriendCode = () => {
+    randomAdj = adjectiveList[Math.floor(Math.random() * adjectiveList.length)]
+    randomNum = Math.floor(Math.random()*899) + 100
+
+    return randomAdj + "Noob" + randomNum
+}
+
 //POST a new User
 router.post("/", async (req, res) => {
+    const friendCode = randomizeFriendCode()
+
     try {
         const newUser = await User.create({
             username: req.body.username,
             password: req.body.password,
-            email: req.body.email
+            email: req.body.email,
+            friendCode:friendCode
         })
         const token = jwt.sign(
             {
