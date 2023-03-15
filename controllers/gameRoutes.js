@@ -4,6 +4,7 @@ const router = express.Router();
 const { Game, User, UserGame, Platform, Account, UserGamePlatform } = require("../models");
 const jwt = require("jsonwebtoken");
 const fs = require(`fs`);
+const {Op} = require('sequelize');
 
 
 //GET all records
@@ -11,6 +12,26 @@ router.get("/", async (req, res) => {
     try {
         const results = await Game.findAll();
         res.json(results);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error getting all games!" });
+    }
+});
+
+router.get("/searchGame/:searchInput", async (req, res) => {
+    try {
+        let lookupValue = (req.params.searchInput.toLowerCase()).split('%').join(' ');
+        const results = await Game.findAll({
+            limit: 20,
+            where: {
+                title: {
+                    [Op.like]: '%' + lookupValue + '%'
+                }
+            }
+        });
+
+        res.json(results)
+
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Error getting all games!" });

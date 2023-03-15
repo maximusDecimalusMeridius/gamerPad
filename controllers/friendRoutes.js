@@ -12,25 +12,26 @@ router.post("/addFriend", async (req, res) => {
     }
     try {
         const tokenData = jwt.verify(token, process.env.JWT_SECRET);
+        const friendData = await User.findOne({where:{username:req.body.username}});
+
+        if(!friendData) {
+            return res.status(404).json({ message: "no such user"})
+        }
+
         const userData = await User.findByPk(tokenData.id);
-        const friendData = await User.findByPk(req.body.FriendId);
         
         if (!userData) {
             return res.status(404).json({ message: "token user wrong" });
-        }
-
-        if (!friendData) {
-            return res.status(404).json({ message: "No such User" });
         }
 
         if (friendData.friendCode != req.body.friendCode) {
             return res.status(404).json({ message: "User Friend Code is not a match" });
         }
 
-        const addFriend1 = await userData.addUser(req.body.FriendId)
+        const addFriend1 = await userData.addUser(friendData.id)
         const addFriend2 = await friendData.addUser(tokenData.id)
         
-        return res.json({friendData})
+        return res.json({ message: "friend added"})
 
     } catch (error) {
         console.error(error);
