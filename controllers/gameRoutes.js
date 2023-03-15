@@ -20,7 +20,7 @@ router.get("/", async (req, res) => {
 
 router.get("/searchGame/:searchInput", async (req, res) => {
     try {
-        let lookupValue = (req.params.searchInput.toLowerCase()).split('%').join(' ');
+        let lookupValue = (req.params.searchInput.toLowerCase());
         const results = await Game.findAll({
             limit: 20,
             where: {
