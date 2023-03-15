@@ -6,6 +6,7 @@ const accountData = [
         username: 'BetterThanYou42',
         gamerTag: 'BetterThanYou42',
         UserId: 1,
+        color: "#048A81"
     },
     {
         account: 'Playstation Network',
@@ -13,6 +14,7 @@ const accountData = [
         username: 'HipSlickter420',
         gamerTag: 'HipSlickter420',
         UserId: 2,
+        color: "#9D8420"
     },
     {
         account: 'Discord',
@@ -20,6 +22,7 @@ const accountData = [
         username: 'Blockhead',
         gamerTag: 'n/a',
         UserId: 3,
+        color: "#C97C5D"
     }
 ]
 

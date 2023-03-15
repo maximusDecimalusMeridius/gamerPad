@@ -74,6 +74,7 @@ router.post("/", async (req, res) => {
             type:req.body.type,
             username:req.body.username,
             gamerTag:req.body.gamerTag,
+            color:req.body.color,
             UserId:tokenData.id
         })
 
