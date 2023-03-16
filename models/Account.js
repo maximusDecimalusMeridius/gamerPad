@@ -19,7 +19,13 @@ Account.init({
     gamerTag: {
         type: DataTypes.STRING,
         allowNull: false
+    },
+    color: {
+        type: DataTypes.STRING,
+        allowNull:false,
+        defaultValue: "#bebebe"
     }
+    
 }, {
     sequelize
 });

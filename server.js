@@ -6,6 +6,7 @@ require("dotenv").config();
 const allRoutes = require("./controllers");
 const cors = require('cors');
 
+
 //define sequelize connection in /config/connection
 const sequelize = require('./config/connection');
 
@@ -33,8 +34,6 @@ app.get("/*", (req, res) => {
     res.send("Oops we couldn't find what you're looking for!");
 })
 
-
-
 //sync sequelize, dropping and recreating the db each time
 //launch server on PORT
 sequelize.sync({ force: false }).then(function () {
@@ -42,5 +41,5 @@ sequelize.sync({ force: false }).then(function () {
         console.log('App listening on PORT ' + PORT);
 
     })
-
 });
+
